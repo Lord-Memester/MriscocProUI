@@ -49,8 +49,6 @@ MarlinUI ui;
   #include "e3v2/creality/dwin.h"
 #elif ENABLED(DWIN_LCD_PROUI)
   #include "e3v2/proui/dwin.h"
-#elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
-  #include "e3v2/jyersui/dwin.h"
 #endif
 
 #if ENABLED(LCD_PROGRESS_BAR) && !IS_TFTGLCD_PANEL
@@ -840,7 +838,7 @@ void MarlinUI::init() {
           // Apply a linear offset to a single axis
           if (axis == ALL_AXES_ENUM)
             destination = all_axes_destination;
-          else if (axis <= LOGICAL_AXES) {
+          else if (axis <= XYZE) {
             destination = current_position;
             destination[axis] += offset;
           }
@@ -1486,7 +1484,7 @@ void MarlinUI::init() {
     FSTR_P msg;
     if (printingIsPaused())
       msg = GET_TEXT_F(MSG_PRINT_PAUSED);
-    #if ENABLED(SDSUPPORT)
+    #if ENABLED(SDSUPPORT) && DISABLED(DWIN_LCD_PROUI)
       else if (IS_SD_PRINTING())
         return set_status(card.longest_filename(), true);
     #endif
@@ -1607,7 +1605,6 @@ void MarlinUI::init() {
     TERN_(EXTENSIBLE_UI, ExtUI::onStatusChanged(status_message));
     TERN_(DWIN_CREALITY_LCD, DWIN_StatusChanged(status_message));
     TERN_(DWIN_LCD_PROUI, DWIN_CheckStatusMessage());
-    TERN_(DWIN_CREALITY_LCD_JYERSUI, CrealityDWIN.Update_Status(status_message));
   }
 
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
@@ -1756,11 +1753,9 @@ void MarlinUI::init() {
     );
   }
 
-  #if LCD_WITH_BLINK && HAS_EXTRA_PROGRESS
-
-    // Renew and redraw all enabled progress strings
-    void MarlinUI::rotate_progress() {
-      typedef void (*PrintProgress_t)();
+  #if LCD_WITH_BLINK && DISABLED(HAS_GRAPHICAL_TFT)
+    typedef void (*PrintProgress_t)();
+    void MarlinUI::rotate_progress() { // Renew and redraw all enabled progress strings
       const PrintProgress_t progFunc[] = {
         OPTITEM(SHOW_PROGRESS_PERCENT, drawPercent)
         OPTITEM(SHOW_ELAPSED_TIME, drawElapsed)
@@ -1775,8 +1770,7 @@ void MarlinUI::init() {
         (*progFunc[i])();
       }
     }
-
-  #endif // LCD_WITH_BLINK && HAS_EXTRA_PROGRESS
+  #endif
 
 #endif // HAS_PRINT_PROGRESS
 

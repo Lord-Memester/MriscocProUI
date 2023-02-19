@@ -2228,26 +2228,27 @@
 //#define PREHEAT_1_TEMP_CHAMBER 35
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
-#define PREHEAT_2_LABEL       "ABS" //PETG 
+#define PREHEAT_2_LABEL       "ABS" //ABS
 #define PREHEAT_2_TEMP_HOTEND 240
 #define PREHEAT_2_TEMP_BED     75
 //#define PREHEAT_2_TEMP_CHAMBER 35
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
 
-#define PREHEAT_3_LABEL       "Warmup"
+#define PREHEAT_3_LABEL       "Warmup" //TPU
 #define PREHEAT_3_TEMP_HOTEND 200
 #define PREHEAT_3_TEMP_BED     50
 #define PREHEAT_3_FAN_SPEED     0
 
-//#define PREHEAT_4_LABEL       "TPU"
-//#define PREHEAT_4_TEMP_HOTEND 230
-//#define PREHEAT_4_TEMP_BED     80
-//#define PREHEAT_4_FAN_SPEED     128 // Value from 0 to 255
+//#define PREHEAT_2_LABEL       "ABS"
+//#define PREHEAT_2_TEMP_HOTEND 230
+//#define PREHEAT_2_TEMP_BED     80
+//#define PREHEAT_2_TEMP_CHAMBER 35
+//#define PREHEAT_2_FAN_SPEED     128 // Value from 0 to 255
 
-//#define PREHEAT_5_LABEL       "CUSTOM"  //NYLON
-//#define PREHEAT_5_TEMP_HOTEND 240
-//#define PREHEAT_5_TEMP_BED     60
-//#define PREHEAT_5_FAN_SPEED   128
+//#define PREHEAT_3_LABEL       "CUSTOM"
+//#define PREHEAT_3_TEMP_HOTEND 240
+//#define PREHEAT_3_TEMP_BED     60
+//#define PREHEAT_3_FAN_SPEED   128
 
 // @section motion
 
@@ -2863,7 +2864,7 @@
 // (For CR-10 owners who want to replace the Melzi Creality board but retain the display)
 //
 //#define CR10_STOCKDISPLAY    //For DWIN LCD Ender 3 V2 / Voxelab Aquila line --> 3170
-#ifdef CR10_STOCKDISPLAY 
+#if CR10_STOCKDISPLAY 
   #define RET6_12864_LCD
 #endif
 //
@@ -3196,13 +3197,13 @@
   #define HAS_ESDIAG 1
   #define HAS_CGCODE 1
   #define HAS_LOCKSCREEN 1
+  #define USE_STOCK_DWIN_SET
   #define SHOW_REAL_POS 1
   //#define HAS_SD_EXTENDER 1  // Enable it to support SD card extender cables
 #elif ENABLED(DWIN_LCD_PROUI)
-  //#define HAS_GCODE_PREVIEW 1
+  #define HAS_GCODE_PREVIEW 1
   #define HAS_PIDPLOT 1
   #define HAS_ESDIAG 1
-  #define HAS_CGCODE 1
   #define HAS_LOCKSCREEN 1
   #define SHOW_REAL_POS 1
 #endif
