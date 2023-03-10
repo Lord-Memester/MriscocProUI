@@ -2141,6 +2141,7 @@ void AutoHome() { queue.inject_P(G28_STR); }
   void HomeX() { queue.inject(F("G28X")); }
   void HomeY() { queue.inject(F("G28Y")); }
   void HomeZ() { queue.inject(F("G28Z")); }
+  void HomeXY() { queue.inject(F("G28XY")); }
   #if BOTH(INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
     void ApplyZAfterHoming() { HMI_data.z_after_homing = MenuData.Value; };
     void SetZAfterHoming() { SetIntOnClick(0, 20, HMI_data.z_after_homing, ApplyZAfterHoming); }
@@ -3630,6 +3631,7 @@ void Draw_Steps_Menu() {
       MENU_ITEM(ICON_HomeX, MSG_AUTO_HOME_X, onDrawMenuItem, HomeX);
       MENU_ITEM(ICON_HomeY, MSG_AUTO_HOME_Y, onDrawMenuItem, HomeY);
       MENU_ITEM(ICON_HomeZ, MSG_AUTO_HOME_Z, onDrawMenuItem, HomeZ);
+      MENU_ITEM(ICON_Homing, MSG_AUTO_HOME_XY, onDrawMenuItem, HomeXY);
       #if ENABLED(NOZZLE_PARK_FEATURE)
         MENU_ITEM(ICON_Park, MSG_FILAMENT_PARK_ENABLED, onDrawMenuItem, ParkHead);
       #endif
