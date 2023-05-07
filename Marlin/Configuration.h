@@ -1550,7 +1550,7 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { -49.1, -11.3, -1.73 }
+#define NOZZLE_TO_PROBE_OFFSET { -49.1, -11.3, -1.69 }
 
 // Enable and set to use a specific tool for probing. Disable to allow any tool.
 //#define PROBING_TOOL 0
@@ -1560,7 +1560,7 @@
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
-#define PROBING_MARGIN 20  // MRiscoC Avoid clips on borders (new config suggests 0 but dunno if thats ender of aquila specific so i kept my 20)
+#define PROBING_MARGIN 0  // MRiscoC Avoid clips on borders (new config suggests 0 but dunno if thats ender of aquila specific so i kept my 20) previously 20
 
 // X and Y axis travel speed (mm/min) between probes
 #define XY_PROBE_FEEDRATE (180*60)
