@@ -3,7 +3,7 @@
  * Extended by: Miguel A. Risco-Castillo (MRISCOC)
  * Version: 2.1.0
  * Date: 2022/08/27
- * 
+ *
  * Based on the original work of: Henri-J-Norden
  * https://github.com/Jyers/Marlin/pull/126
  *
@@ -41,7 +41,7 @@
 #include "dwin_popup.h"
 #include "bedlevel_tools.h"
 
-BedLevelToolsClass BedLevelTools;
+BedLevelToolsClass bedLevelTools;
 
 #if ENABLED(USE_UBL_VIEWER)
   bool BedLevelToolsClass::viewer_asymmetric_range = false;
@@ -149,23 +149,23 @@ void BedLevelToolsClass::manual_move(const uint8_t mesh_x, const uint8_t mesh_y,
 
 // Move / Probe methods. As examples, not yet used.
 void BedLevelToolsClass::MoveToXYZ() {
-  BedLevelTools.goto_mesh_value = true;
-  BedLevelTools.manual_move(BedLevelTools.mesh_x, BedLevelTools.mesh_y, false);
+  bedLevelTools.goto_mesh_value = true;
+  bedLevelTools.manual_move(bedLevelTools.mesh_x, bedLevelTools.mesh_y, false);
 }
 void BedLevelToolsClass::MoveToXY() {
-  BedLevelTools.goto_mesh_value = false;
-  BedLevelTools.manual_move(BedLevelTools.mesh_x, BedLevelTools.mesh_y, false);
+  bedLevelTools.goto_mesh_value = false;
+  bedLevelTools.manual_move(bedLevelTools.mesh_x, bedLevelTools.mesh_y, false);
 }
 void BedLevelToolsClass::MoveToZ() {
-  BedLevelTools.goto_mesh_value = true;
-  BedLevelTools.manual_move(BedLevelTools.mesh_x, BedLevelTools.mesh_y, true);
+  bedLevelTools.goto_mesh_value = true;
+  bedLevelTools.manual_move(bedLevelTools.mesh_x, bedLevelTools.mesh_y, true);
 }
 void BedLevelToolsClass::ProbeXY() {
   const uint16_t Clear = Z_CLEARANCE_DEPLOY_PROBE;
-  sprintf_P(cmd, PSTR("G0Z%i\nG30X%sY%s"),
+  sprintf_P(cmd, PSTR("G28O\nG0Z%i\nG30X%sY%s"),
     Clear,
-    dtostrf(bedlevel.get_mesh_x(BedLevelTools.mesh_x), 1, 2, str_1),
-    dtostrf(bedlevel.get_mesh_y(BedLevelTools.mesh_y), 1, 2, str_2)
+    dtostrf(bedlevel.get_mesh_x(bedLevelTools.mesh_x), 1, 2, str_1),
+    dtostrf(bedlevel.get_mesh_y(bedLevelTools.mesh_y), 1, 2, str_2)
   );
   gcode.process_subcommands_now(cmd);
 }
@@ -191,14 +191,11 @@ float BedLevelToolsClass::get_min_value() {
 
 // Return 'true' if mesh is good and within LCD limits
 bool BedLevelToolsClass::meshvalidate() {
-  float min = __FLT_MAX__, max = __FLT_MAX__ * -1;
-
   GRID_LOOP(x, y) {
-    if (isnan(bedlevel.z_values[x][y])) return false;
-    if (bedlevel.z_values[x][y] < min) min = bedlevel.z_values[x][y];
-    if (bedlevel.z_values[x][y] > max) max = bedlevel.z_values[x][y];
+    const float v = bedlevel.z_values[x][y];
+    if (isnan(v) || !WITHIN(v, UBL_Z_OFFSET_MIN, UBL_Z_OFFSET_MAX)) return false;
   }
-  return (max <= UBL_Z_OFFSET_MAX) && (min >= UBL_Z_OFFSET_MIN);
+  return true;
 }
 
 #if ENABLED(USE_UBL_VIEWER)

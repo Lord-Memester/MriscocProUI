@@ -71,7 +71,7 @@ void do_enable(const stepper_flags_t to_enable) {
 
   if (!shall_enable) return;    // All specified axes already enabled?
 
-  ena_mask_t also_enabled = 0;    // Track steppers enabled due to overlap
+  ena_mask_t also_enabled = 0;  // Track steppers enabled due to overlap
 
   // Enable all flagged axes
   LOOP_NUM_AXES(a) {
@@ -212,7 +212,7 @@ void try_to_disable(const stepper_flags_t to_disable) {
 void GcodeSuite::M18_M84() {
   if (parser.seenval('S')) {
     reset_stepper_timeout();
-    #if HAS_DISABLE_INACTIVE_AXIS
+    #if HAS_DISABLE_IDLE_AXES
       const millis_t ms = parser.value_millis_from_seconds();
       #if LASER_SAFETY_TIMEOUT_MS > 0
         if (ms && ms <= LASER_SAFETY_TIMEOUT_MS) {

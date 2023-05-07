@@ -69,8 +69,10 @@ The Issue Queue is reserved for Bug Reports and Feature Requests. To get help wi
 
 ## Credits
 
-Thanks to Reddit u/schuh8 for donating his board to help test the firmware. 
+Thanks to Reddit u/schuh8 for donating his board to help test the firmware.
+<br>
 and I*_U*1
+</br>
 
 
 

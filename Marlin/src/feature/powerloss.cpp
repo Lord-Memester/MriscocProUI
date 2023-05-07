@@ -117,6 +117,7 @@ void PrintJobRecovery::changed() {
     purge();
   else if (IS_SD_PRINTING())
     save(true);
+  TERN_(EXTENSIBLE_UI, ExtUI::onSetPowerLoss(enabled));
 }
 
 /**
@@ -423,6 +424,10 @@ void PrintJobRecovery::resume() {
   // establish the current position as best we can.
   //
 
+  #if ENABLED(DWIN_LCD_PROUI) && DISABLED(NOZZLE_CLEAN_FEATURE)
+    xyze_pos_t save_pos = info.current_position;
+  #endif
+
   PROCESS_SUBCOMMANDS_NOW(F("G92.9E0")); // Reset E to 0
 
   #if Z_HOME_TO_MAX
@@ -484,6 +489,14 @@ void PrintJobRecovery::resume() {
       sprintf_P(cmd, PSTR("G92.9Z%s"), dtostrf(z_now, 1, 1, str_1));
       PROCESS_SUBCOMMANDS_NOW(cmd);
     #endif
+  #endif
+
+  #if ENABLED(DWIN_LCD_PROUI) && DISABLED(NOZZLE_CLEAN_FEATURE)
+    // Parking head to allow clean before of heating the hotend
+    gcode.process_subcommands_now(F("G27"));
+    DWIN_Popup_Continue(ICON_BLTouch, GET_TEXT_F(MSG_NOZZLE_PARKED), GET_TEXT_F(MSG_NOZZLE_CLEAN));
+    wait_for_user_response();
+    info.current_position = save_pos;
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVER_ZHOME)

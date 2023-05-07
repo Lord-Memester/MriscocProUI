@@ -3,7 +3,7 @@
  * Extended by: Miguel A. Risco-Castillo (MRISCOC)
  * Version: 2.1.0
  * Date: 2022/08/27
- * 
+ *
  * Based on the original work of: Henri-J-Norden
  * https://github.com/Jyers/Marlin/pull/126
  *
@@ -62,6 +62,4 @@ public:
   #endif
 };
 
-extern BedLevelToolsClass BedLevelTools;
-
-void Goto_MeshViewer();
+extern BedLevelToolsClass bedLevelTools;
