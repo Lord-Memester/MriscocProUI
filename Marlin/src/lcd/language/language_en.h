@@ -313,6 +313,8 @@ namespace Language_en {
   LSTR MSG_MOVE_X                         = _UxGT("Move X"); // Used by draw_edit_screen
   LSTR MSG_MOVE_Y                         = _UxGT("Move Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Move Z");
+  LSTR MSG_MICROSTEP_Z_UP                 = _UxGT("Microstep Up");
+  LSTR MSG_MICROSTEP_Z_DOWN               = _UxGT("Microstep Down");
   LSTR MSG_MOVE_N                         = _UxGT("Move @");
   LSTR MSG_MOVE_E                         = _UxGT("Move Extruder");
   LSTR MSG_MOVE_EN                        = _UxGT("Move *");

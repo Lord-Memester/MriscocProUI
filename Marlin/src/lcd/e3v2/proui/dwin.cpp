@@ -3614,6 +3614,7 @@ void Draw_Steps_Menu() {
       MENU_ITEM(ICON_Homing, MSG_AUTO_HOME, onDrawMenuItem, AutoHome);
       MENU_ITEM(ICON_SetHome, MSG_MOVE_NOZZLE_TO_BED, onDrawMenuItem, SetMoveZto0);
       EDIT_ITEM(ICON_Fade, MSG_XATC_UPDATE_Z_OFFSET, onDrawPFloat2Menu, SetZOffset, &BABY_Z_VAR);
+      //MENU_ITEM(ICON_Axis, MSG_MICROSTEP_Z_UP, onDrawMenuItem, SetZOffset, &BABY_Z_VAR + 1)
       MENU_ITEM_F(0,"For Best Results:\n", onDrawMenuItem);
       MENU_ITEM_F(ICON_More, "Have Nozzle Touch Bed", onDrawMenuItem);
     }

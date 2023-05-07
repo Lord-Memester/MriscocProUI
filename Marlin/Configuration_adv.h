@@ -1034,7 +1034,7 @@
 //
 // Add the G35 command to read bed corners to help adjust screws. Requires a bed probe.
 //
-//#define ASSISTED_TRAMMING
+#define ASSISTED_TRAMMING
 #if ENABLED(ASSISTED_TRAMMING)
 
   // Define from 3 to 9 points to probe.
@@ -1086,7 +1086,7 @@
  *  X<1>         Set the given parameters only for the X axis.
  *  Y<1>         Set the given parameters only for the Y axis.
  */
-//#define INPUT_SHAPING_X
+#define INPUT_SHAPING_X
 //#define INPUT_SHAPING_Y
 #if EITHER(INPUT_SHAPING_X, INPUT_SHAPING_Y)
   #if ENABLED(INPUT_SHAPING_X)
@@ -1124,10 +1124,10 @@
  * Set DISABLE_INACTIVE_? 'true' to shut down axis steppers after an idle period.
  * The Deactive Time can be overridden with M18 and M84. Set to 0 for No Timeout.
  */
-#define DEFAULT_STEPPER_DEACTIVE_TIME 360
+#define DEFAULT_STEPPER_DEACTIVE_TIME 60*5
 #define DISABLE_INACTIVE_X
 #define DISABLE_INACTIVE_Y
-#define DISABLE_INACTIVE_Z 0// Disable if the nozzle could fall onto your printed part!
+#define DISABLE_INACTIVE_Z 60*30// Disable if the nozzle could fall onto your printed part!
 //#define DISABLE_INACTIVE_I
 //#define DISABLE_INACTIVE_J
 //#define DISABLE_INACTIVE_K
@@ -2129,7 +2129,7 @@
     #define ADVANCE_K 0.00        // (mm) Compression length applying to all extruders
   #endif
   //#define ADVANCE_K_EXTRA       // Add a second linear advance constant, configurable with M900 L.
-  #define LA_DEBUG              // Print debug information to serial during operation. Disable for production use.
+  //#define LA_DEBUG              // Print debug information to serial during operation. Disable for production use.
   #define ALLOW_LOW_EJERK       // Allow a DEFAULT_EJERK value of <10. Recommended for direct drive hotends.
   //#define EXPERIMENTAL_I2S_LA   // Allow I2S_STEPPER_STREAM to be used with LA. Performance degrades as the LA step rate reaches ~20kHz.
 #endif
