@@ -1,8 +1,15 @@
-# Professional Firmware for the Voxelab Aquila and Creality Ender 3 Printers
+# Professional Firmware for the Voxelab Aquila Printer
 
 ![GitHub contributors](https://img.shields.io/github/contributors/classicrocker883/MriscocProUI.svg)
 ![GitHub Release Date](https://img.shields.io/github/release-date/classicrocker883/MriscocProUI.svg)
 [![Build Status](https://github.com/classicrocker883/MriscocProUI/workflows/CI/badge.svg?branch=MriscocProUI)](https://github.com/classicrocker883/MriscocProUI/actions)
+
+### This custom repository:
+[![Build Configs](https://github.com/Lord-Memester/MriscocProUI/actions/workflows/compile-configs.yml/badge.svg)](https://github.com/Lord-Memester/MriscocProUI/actions/workflows/compile-configs.yml)
+[![CI](https://github.com/Lord-Memester/MriscocProUI/actions/workflows/test-builds.yml/badge.svg)](https://github.com/Lord-Memester/MriscocProUI/actions/workflows/test-builds.yml)
+[![Bump Distribution Date](https://github.com/Lord-Memester/MriscocProUI/actions/workflows/bump-date.yml/badge.svg)](https://github.com/Lord-Memester/MriscocProUI/actions/workflows/bump-date.yml)
+[![Close Stale Issues](https://github.com/Lord-Memester/MriscocProUI/actions/workflows/close-stale.yml/badge.svg)](https://github.com/Lord-Memester/MriscocProUI/actions/workflows/close-stale.yml)
+
 
 ## Universal RET6/RCT6 chips: G32, N32, (working on H32), Creality 4.2.7 and 4.2.2 boards
 
