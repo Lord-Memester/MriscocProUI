@@ -1559,7 +1559,7 @@
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
-#define PROBING_MARGIN 0  // MRiscoC Avoid clips on borders (new config suggests 0 but dunno if thats ender of aquila specific so i kept my 20) previously 20
+#define PROBING_MARGIN 20  // MRiscoC Avoid clips on borders (new config suggests 0 but dunno if thats ender of aquila specific so i kept my 20) previously 20
 
 // X and Y axis travel speed (mm/min) between probes
 #define XY_PROBE_FEEDRATE (180*60)
@@ -2107,7 +2107,7 @@
   #define MESH_EDIT_MENU            // Add a menu to edit mesh points
 
   #define MESH_INSET 10             // Set Mesh bounds as an inset region of the bed  // MRiscoC Center mesh
-  #define GRID_MAX_POINTS_X 4       // Don't use more than 15 points per axis, implementation limited.  // MRiscoC Customizable by menu
+  #define GRID_MAX_POINTS_X 7       // Don't use more than 15 points per axis, implementation limited.  // MRiscoC Customizable by menu
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   #define UBL_HILBERT_CURVE         // Use Hilbert distribution for less travel when probing multiple points
