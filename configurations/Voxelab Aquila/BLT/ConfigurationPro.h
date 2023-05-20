@@ -1,4 +1,4 @@
-/** BTT SKR MINI E3 V3.0 UBL
+/** Aquila BLT Mriscoc ProUI
  * Marlin 3D Printer Firmware
  * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -73,7 +73,7 @@
 
 // Choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_BTT_SKR_MINI_E3_V3_0 // BTT SKR MINI E3    BOARD_BTT_SKR_MINI_E3_V3_0 / V3_0_1
+  #define MOTHERBOARD BOARD_VOXELAB_AQUILA // BOARD_CREALITY_V427 BOARD_VOXELAB_AQUILA BOARD_CREALITY_V422
 #endif
 
 /**
@@ -84,8 +84,9 @@
  *
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-#define SERIAL_PORT 2  // BTT SKR MINI E3 TFT
+#define SERIAL_PORT 1  // Ender Configs
 #define NO_AUTO_ASSIGN_WARNING  // Disable serial warnings
+#define NO_MAPLE_WARNING        // Disable warning when using Maple env
 
 /**
  * Serial Port Baud Rate
@@ -106,8 +107,8 @@
  * Currently Ethernet (-2) is only supported on Teensy 4.1 boards.
  * :[-2, -1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-#define SERIAL_PORT_2 -1    // USB
-#define BAUDRATE_2 115200   // :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000] Enable to override BAUDRATE
+//#define SERIAL_PORT_2 -1
+//#define BAUDRATE_2 250000   // :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000] Enable to override BAUDRATE
 
 /**
  * Select a third serial port on the board to use for communication with the host.
@@ -153,9 +154,9 @@
  *          TMC5130, TMC5130_STANDALONE, TMC5160, TMC5160_STANDALONE
  * :['A4988', 'A5984', 'DRV8825', 'LV8729', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2160', 'TMC2160_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC2209', 'TMC2209_STANDALONE', 'TMC26X', 'TMC26X_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE', 'TMC5160', 'TMC5160_STANDALONE']
  */
-#define X_DRIVER_TYPE TMC2209  // BTT SKR MINI E3
-#define Y_DRIVER_TYPE TMC2209  // BTT SKR MINI E3
-#define Z_DRIVER_TYPE TMC2209  // BTT SKR MINI E3
+#define X_DRIVER_TYPE TMC2208_STANDALONE  // Ender Configs
+#define Y_DRIVER_TYPE TMC2208_STANDALONE  // Ender Configs
+#define Z_DRIVER_TYPE TMC2208_STANDALONE  // Ender Configs
 //#define X2_DRIVER_TYPE A4988
 //#define Y2_DRIVER_TYPE A4988
 //#define Z2_DRIVER_TYPE A4988
@@ -167,7 +168,7 @@
 //#define U_DRIVER_TYPE  A4988
 //#define V_DRIVER_TYPE  A4988
 //#define W_DRIVER_TYPE  A4988
-#define E0_DRIVER_TYPE TMC2209  // BTT SKR MINI E3
+#define E0_DRIVER_TYPE TMC2208_STANDALONE  // Ender Configs
 //#define E1_DRIVER_TYPE A4988
 //#define E2_DRIVER_TYPE A4988
 //#define E3_DRIVER_TYPE A4988
@@ -406,7 +407,7 @@
  * Specify whether the power supply is active HIGH or active LOW.
  */
 //#define PSU_CONTROL
-#define PSU_NAME "Power Supply"
+//#define PSU_NAME "Power Supply"
 
 #if ENABLED(PSU_CONTROL)
   //#define MKS_PWC                 // Using the MKS PWC add-on
@@ -838,8 +839,8 @@
   #define PID_FUNCTIONAL_RANGE 10 // If the temperature difference between the target temperature and the actual temperature
                                   // is more than PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
 
-  #define PID_EDIT_MENU           // Add PID editing to the "Advanced Settings" menu. (~700 bytes of flash)
-  #define PID_AUTOTUNE_MENU       // Add PID auto-tuning to the "Advanced Settings" menu. (~250 bytes of flash)
+  //#define PID_EDIT_MENU         // Add PID editing to the "Advanced Settings" menu. (~700 bytes of flash)
+  //#define PID_AUTOTUNE_MENU     // Add PID auto-tuning to the "Advanced Settings" menu. (~250 bytes of flash)
 #endif
 
 // @section safety
@@ -1346,7 +1347,7 @@
 //#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN  // Probe connected to BLTouch port
 
 // Force the use of the probe for Z-axis homing
-#define USE_PROBE_FOR_Z_HOMING
+#define USE_PROBE_FOR_Z_HOMING  // Manual mesh not have a probe
 
 /**
  * Z_MIN_PROBE_PIN
@@ -1361,7 +1362,7 @@
  *    - Normally-closed (NC) also connect to GND.
  *    - Normally-open (NO) also connect to 5V.
  */
-//#define Z_MIN_PROBE_PIN PC14 // PC14 for V3_0 PA1 for V3_0_1 BTT SKR MINI E3
+//#define Z_MIN_PROBE_PIN PB1 // Pin 32 is the RAMPS default
 
 /**
  * Probe Type
@@ -1375,7 +1376,7 @@
  * Use G29 repeatedly, adjusting the Z height at each point with movement commands
  * or (with LCD_BED_LEVELING) the LCD controller.
  */
-//#define PROBE_MANUALLY
+//#define PROBE_MANUALLY  // Manual mesh version
 
 /**
  * A Fix-Mounted Probe either doesn't deploy or needs manual deployment.
@@ -1621,7 +1622,7 @@
  * A total of 2 does fast/slow probes with a weighted average.
  * A total of 3 or more adds more slow probes, taking the average.
  */
-#define MULTIPLE_PROBING 2
+#define MULTIPLE_PROBING 1    // Use a value of (1) with ProUIex, otherwise (2)
 //#define EXTRA_PROBING    1
 
 /**
@@ -1670,7 +1671,7 @@
   //#define WAIT_FOR_BED_HEATER     // Wait for bed to heat back up between probes (to improve accuracy)
   //#define WAIT_FOR_HOTEND         // Wait for hotend to heat back up between probes (to improve accuracy & prevent cold extrude)
 #endif
-#define PROBING_FANS_OFF            // Turn fans off when probing
+//#define PROBING_FANS_OFF          // Turn fans off when probing
 //#define PROBING_ESTEPPERS_OFF     // Turn all extruder steppers off when probing
 //#define PROBING_STEPPERS_OFF      // Turn all steppers off (unless needed to hold position) when probing (including extruders)
 //#define DELAY_BEFORE_PROBING 200  // (ms) To prevent vibrations from triggering piezo sensors
@@ -1718,9 +1719,9 @@
 // @section motion
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
-#define INVERT_X_DIR true   // BTT SKR MINI E3
-#define INVERT_Y_DIR true   // BTT SKR MINI E3
-#define INVERT_Z_DIR false  // BTT SKR MINI E3
+#define INVERT_X_DIR false
+#define INVERT_Y_DIR false
+#define INVERT_Z_DIR true
 //#define INVERT_I_DIR false
 //#define INVERT_J_DIR false
 //#define INVERT_K_DIR false
@@ -1731,7 +1732,7 @@
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-#define INVERT_E0_DIR true   // BTT SKR MINI E3
+#define INVERT_E0_DIR false
 #define INVERT_E1_DIR false
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
@@ -1854,7 +1855,7 @@
   #define FIL_RUNOUT_ENABLED_DEFAULT false// Enable the sensor on startup. Override with M412 followed by M500.
   #define NUM_RUNOUT_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
 
-  #define FIL_RUNOUT_STATE     LOW        // Pin state indicating that filament is NOT present.
+  #define FIL_RUNOUT_STATE     HIGH       // Pin state indicating that filament is NOT present.
   #define FIL_RUNOUT_PULLUP               // Use internal pullup for filament runout pins.
   //#define FIL_RUNOUT_PULLDOWN           // Use internal pulldown for filament runout pins.
   //#define WATCH_ALL_RUNOUT_SENSORS      // Execute runout script on any triggering sensor, not only for the active extruder.
@@ -1992,8 +1993,8 @@
  */
 //#define AUTO_BED_LEVELING_3POINT
 //#define AUTO_BED_LEVELING_LINEAR
-//#define AUTO_BED_LEVELING_BILINEAR  // MRiscoC BLTouch auto level
-#define AUTO_BED_LEVELING_UBL
+#define AUTO_BED_LEVELING_BILINEAR  // MRiscoC BLTouch auto level
+//#define AUTO_BED_LEVELING_UBL
 //#define MESH_BED_LEVELING
 
 /**
@@ -2109,7 +2110,7 @@
   //========================= Unified Bed Leveling ============================
   //===========================================================================
 
-  #define MESH_EDIT_GFX_OVERLAY     // Display a graphics overlay while editing the mesh
+  //#define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
   #define MESH_EDIT_MENU            // Add a menu to edit mesh points
 
   #define MESH_INSET 10             // Set Mesh bounds as an inset region of the bed  // MRiscoC Center mesh
@@ -2167,28 +2168,30 @@
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-#define LCD_BED_LEVELING
+//#define LCD_BED_LEVELING
 
 #if ENABLED(LCD_BED_LEVELING)
   #define MESH_EDIT_Z_STEP  0.025 // (mm) Step size while manually probing Z axis.
   #define LCD_PROBE_Z_RANGE 4     // (mm) Z Range centered on Z_MIN_POS for LCD Z adjustment
-  #define MESH_EDIT_MENU          // Add a menu to edit mesh points
+  //#define MESH_EDIT_MENU        // Add a menu to edit mesh points
 #endif
 
 // Add a menu item to move between bed corners for manual bed adjustment
-#define LCD_BED_TRAMMING
-//#define BED_SCREW_INSET 35 // distance the knob screw is from corners
+//#define LCD_BED_TRAMMING
+#define BED_SCREW_INSET 35 // distance the knob screw is from corners
 
 #if ENABLED(LCD_BED_TRAMMING)
-  #define BED_TRAMMING_INSET_LFRB { 35, 35, 35, 35 } // (mm) Left, Front, Right, Back insets
-  #define BED_TRAMMING_HEIGHT      0.0        // (mm) Z height of nozzle at leveling points
-  #define BED_TRAMMING_Z_HOP       5.0        // (mm) Z height of nozzle between leveling points
+  #define BED_TRAMMING_HEIGHT      0.0        // (mm) Z height of nozzle at tramming points
+  #define BED_TRAMMING_Z_HOP       5.0        // (mm) Z height of nozzle between tramming points
   #define BED_TRAMMING_INCLUDE_CENTER       // Move to the center after the last corner
   #define BED_TRAMMING_USE_PROBE
   #if ENABLED(BED_TRAMMING_USE_PROBE)
+    #define BED_TRAMMING_INSET_LFRB { 35, 35, 35, 35 } // (mm) Left, Front, Right, Back insets
     #define BED_TRAMMING_PROBE_TOLERANCE 0.05f  // (mm)
     #define BED_TRAMMING_VERIFY_RAISED        // After adjustment triggers the probe, re-probe to verify
     //#define BED_TRAMMING_AUDIO_FEEDBACK
+  #else
+    #define BED_TRAMMING_INSET_LFRB { 25.4, 25.4, 25.4, 25.4 } // (mm) Left, Front, Right, Back insets
   #endif
 
   /**
@@ -2657,13 +2660,13 @@
 // This option overrides the default number of encoder pulses needed to
 // produce one step. Should be increased for high-resolution encoders.
 //
-//#define ENCODER_PULSES_PER_STEP 4  // Ender Configs
+#define ENCODER_PULSES_PER_STEP 4  // Ender Configs
 
 //
 // Use this option to override the number of step signals required to
 // move between next/prev menu items.
 //
-//#define ENCODER_STEPS_PER_MENU_ITEM 1  // Ender Configs
+#define ENCODER_STEPS_PER_MENU_ITEM 1  // Ender Configs
 
 /**
  * Encoder Direction Options
@@ -2680,7 +2683,7 @@
 //
 //  Set this option if CLOCKWISE causes values to DECREASE
 //
-//#define REVERSE_ENCODER_DIRECTION
+#define REVERSE_ENCODER_DIRECTION   //Aquila enable -- Ender disable
 
 //
 // This option reverses the encoder direction for navigating LCD menus.
@@ -2713,7 +2716,7 @@
 //
 // Add individual axis homing items (Home X, Home Y, and Home Z) to the LCD menu.
 //
-#define INDIVIDUAL_AXIS_HOMING_MENU  //  BTT SKR MINI E3
+//#define INDIVIDUAL_AXIS_HOMING_MENU
 #define INDIVIDUAL_AXIS_HOMING_SUBMENU
 
 //
@@ -2722,7 +2725,7 @@
 // If you have a speaker that can produce tones, enable it here.
 // By default Marlin assumes you have a buzzer with a fixed frequency.
 //
-#define SPEAKER
+//#define SPEAKER
 
 //
 // The duration and frequency for the UI feedback sound.
@@ -3361,7 +3364,7 @@
 //
 // DWIN / DACAI LCD 4.3" 480x272
 
-//#define DWIN_LCD_PROUI              // Pro UI by MRiscoC
+#define DWIN_LCD_PROUI              // Pro UI by MRiscoC
 //#define HAS_DACAI 1
 
 #if ENABLED(DWIN_LCD_PROUI)
@@ -3378,7 +3381,7 @@
   //#define HAS_SD_EXTENDER 1  // Enable to support SD card extender cables
   #define USE_UBL_VIEWER 1     // Enable two graph types to view mesh
   #define SHOW_REAL_POS
-  #define ACTIVATE_MESH_ITEM  // Active Mesh Leveling menu option
+  //#define ACTIVATE_MESH_ITEM  // Active Mesh Leveling menu option
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     #define RUNOUT_TUNE_ITEM  // Filament Runout option in Tune Menu
   #endif
@@ -3386,7 +3389,7 @@
     #define PLR_TUNE_ITEM  // Power-loss Recovery option in Tune Menu
   #endif
   #if ENABLED(BLTOUCH)
-    #define HS_MENU_ITEM  // BLTOUCH_HS_MODE menu option
+    //#define HS_MENU_ITEM  // BLTOUCH_HS_MODE menu option
   #endif
   #if ENABLED(HAS_PLOT)
     #define PLOT_TUNE_ITEM  // Temperature Plot Graph item in Tune Menu

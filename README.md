@@ -2,7 +2,8 @@
 
 ![GitHub contributors](https://img.shields.io/github/contributors/classicrocker883/MriscocProUI.svg)
 ![GitHub Release Date](https://img.shields.io/github/release-date/classicrocker883/MriscocProUI.svg)
-[![Build Status](https://github.com/classicrocker883/MriscocProUI/workflows/CI/badge.svg?branch=MriscocProUI)](https://github.com/classicrocker883/MriscocProUI/actions)
+[![Build Status](https://github.com/classicrocker883/MriscocProUI/workflows/CI/badge.svg)](https://github.com/classicrocker883/MriscocProUI/actions)
+[![Build Configs](https://github.com/classicrocker883/MriscocProUI/actions/workflows/compile-configs.yml/badge.svg?event=release)](https://github.com/classicrocker883/MriscocProUI/releases)
 
 ### This custom repository:
 [![Build Configs](https://github.com/Lord-Memester/MriscocProUI/actions/workflows/compile-configs.yml/badge.svg)](https://github.com/Lord-Memester/MriscocProUI/actions/workflows/compile-configs.yml)

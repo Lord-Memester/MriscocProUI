@@ -201,7 +201,6 @@ enum SelectItem : uint8_t {
   PAGE_TOOLBAR,
 #endif
   PAGE_COUNT,
-
   PRINT_SETUP = 0,
   PRINT_PAUSE_RESUME,
   PRINT_STOP,
@@ -390,8 +389,8 @@ void ICON_Button(const bool selected, const int iconid, const frame_rect_t &ico,
 // Main Menu: "Print"
 //
 void ICON_Print() {
-  constexpr frame_rect_t ico = { 17, 110 - TERN0(HAS_TOOLBAR,TBOffset), 110, 100};
-  constexpr frame_rect_t ico2 = { 18, 111 - TERN0(HAS_TOOLBAR,TBOffset), 108, 98};
+  constexpr frame_rect_t ico = { 17, 110 - TERN0(HAS_TOOLBAR, TBOffset), 110, 100};
+  constexpr frame_rect_t ico2 = { 18, 111 - TERN0(HAS_TOOLBAR, TBOffset), 108, 98};
   ICON_Button(select_page.now == PAGE_PRINT, ICON_Print_0, ico, ico2, GET_TEXT_F(MSG_BUTTON_PRINT));
 }
 
@@ -399,8 +398,8 @@ void ICON_Print() {
 // Main Menu: "Prepare"
 //
 void ICON_Prepare() {
-  constexpr frame_rect_t ico = { 145, 110 - TERN0(HAS_TOOLBAR,TBOffset), 110, 100};
-  constexpr frame_rect_t ico2 = { 146, 111 - TERN0(HAS_TOOLBAR,TBOffset), 108, 98};
+  constexpr frame_rect_t ico = { 145, 110 - TERN0(HAS_TOOLBAR, TBOffset), 110, 100};
+  constexpr frame_rect_t ico2 = { 146, 111 - TERN0(HAS_TOOLBAR, TBOffset), 108, 98};
   ICON_Button(select_page.now == PAGE_PREPARE, ICON_Prepare_0, ico, ico2, GET_TEXT_F(MSG_PREPARE));
 }
 
@@ -408,8 +407,8 @@ void ICON_Prepare() {
 // Main Menu: "Control"
 //
 void ICON_Control() {
-  constexpr frame_rect_t ico = { 17, 226 - TERN0(HAS_TOOLBAR,TBOffset), 110, 100};
-  constexpr frame_rect_t ico2 = { 18, 227 - TERN0(HAS_TOOLBAR,TBOffset), 108, 98};
+  constexpr frame_rect_t ico = { 17, 226 - TERN0(HAS_TOOLBAR, TBOffset), 110, 100};
+  constexpr frame_rect_t ico2 = { 18, 227 - TERN0(HAS_TOOLBAR, TBOffset), 108, 98};
   ICON_Button(select_page.now == PAGE_CONTROL, ICON_Control_0, ico, ico2, GET_TEXT_F(MSG_CONTROL));
 }
 
@@ -418,8 +417,8 @@ void ICON_Control() {
 //
 //
 void ICON_AdvSettings() {
-  constexpr frame_rect_t ico = { 145, 226 - TERN0(HAS_TOOLBAR,TBOffset), 110, 100};
-  constexpr frame_rect_t ico2 = { 146, 227 - TERN0(HAS_TOOLBAR,TBOffset), 108, 98};
+  constexpr frame_rect_t ico = { 145, 226 - TERN0(HAS_TOOLBAR, TBOffset), 110, 100};
+  constexpr frame_rect_t ico2 = { 146, 227 - TERN0(HAS_TOOLBAR, TBOffset), 108, 98};
   #if ANY(AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_UBL, MESH_BED_LEVELING)
   ICON_Button(select_page.now == PAGE_ADVANCE, ICON_Leveling_0, ico, ico2, GET_TEXT_F(MSG_BUTTON_LEVEL));
   #else
@@ -1245,9 +1244,9 @@ void HMI_Init() {
       DWINUI::Draw_Icon(ICON_Bar, 15, 260);
       DWIN_Draw_Rectangle(1, HMI_data.Background_Color, t, 260, 257, 280);
       DWIN_UpdateLCD();
-      delay((BOOTSCREEN_TIMEOUT) / 22);
+      safe_delay((BOOTSCREEN_TIMEOUT) / 22);
     }
-  #endif  
+  #endif
 }
 
 void EachMomentUpdate() {
@@ -1487,7 +1486,7 @@ void DWIN_LevelingStart() {
       TERN_(HAS_HEATED_BED, thermalManager.wait_for_bed_heating());
     #endif
   #elif ENABLED(MESH_BED_LEVELING)
-    Draw_ManualMesh_Menu();
+    Draw_AdvancedSettings_Menu();
   #endif
 }
 
@@ -1629,7 +1628,7 @@ void DWIN_LevelingDone() {
         break;
       case MPC_INTERRUPTED:
         checkkey = last_checkkey;
-        DWIN_Popup_Confirm(ICON_TempTooHigh, GET_TEXT_F(MSG_ERROR), F(STR_MPC_AUTOTUNE STR_MPC_AUTOTUNE_INTERRUPTED));
+        DWIN_Popup_Confirm(ICON_TempTooHigh, GET_TEXT_F(MSG_ERROR), F(STR_MPC_AUTOTUNE_INTERRUPTED));
         ui.reset_alert_level();
         break;
       case AUTOTUNE_DONE:
@@ -2049,7 +2048,7 @@ void DWIN_RedrawScreen() {
 
 #endif // ADVANCED_PAUSE_FEATURE
 
-#if HAS_MESH
+#if HAS_MESH && USE_UBL_VIEWER
 
   void DWIN_MeshViewer() {
     if (!leveling_is_valid())
@@ -2381,7 +2380,7 @@ void SetMoveZ() { HMI_value.axis = Z_AXIS; SetPFloatOnClick(Z_MIN_POS, Z_MAX_POS
   }
 #endif
 
-#if ENABLED(USE_UBL_VIEWER)
+#if HAS_MESH && USE_UBL_VIEWER
   void SetViewMesh() {
     Toggle_Chkb_Line(bedLevelTools.view_mesh);
   }
@@ -3052,7 +3051,7 @@ void Draw_Tramming_Menu() {
 
 void Draw_Control_Menu() {
   checkkey = Menu;
-  if (SET_MENU(ControlMenu, MSG_CONTROL, 15)) {
+  if (SET_MENU(ControlMenu, MSG_CONTROL, 17)) {
     BACK_ITEM(Goto_Main_Menu);
     #if ENABLED(EEPROM_SETTINGS)
       MENU_ITEM(ICON_WriteEEPROM, MSG_STORE_EEPROM, onDrawMenuItem, WriteEeprom);
@@ -3504,23 +3503,6 @@ void Draw_Motion_Menu() {
 
 #endif // ADVANCED_PAUSE_FEATURE
 
-#if ENABLED(MESH_BED_LEVELING)
-
-  void Draw_ManualMesh_Menu() {
-    checkkey = Menu;
-    if (SET_MENU(ManualMesh, MSG_UBL_MANUAL_MESH, 6)) {
-      BACK_ITEM(Draw_Prepare_Menu);
-      MENU_ITEM(ICON_ManualMesh, MSG_LEVEL_BED, onDrawMenuItem, ManualMeshStart);
-      MMeshMoveZItem = EDIT_ITEM(ICON_Zoffset, MSG_MOVE_Z, onDrawPFloat2Menu, SetMMeshMoveZ, &current_position.z);
-      MENU_ITEM(ICON_Axis, MSG_UBL_CONTINUE_MESH, onDrawMenuItem, ManualMeshContinue);
-      MENU_ITEM(ICON_MeshViewer, MSG_MESH_VIEW, onDrawSubMenu, DWIN_MeshViewer);
-      MENU_ITEM(ICON_MeshSave, MSG_UBL_SAVE_MESH, onDrawMenuItem, ManualMeshSave);
-    }
-    UpdateMenu(ManualMesh);
-  }
-
-#endif // MESH_BED_LEVELING
-
 #if HAS_PREHEAT
 
   void Draw_Preheat_Menu(bool NotCurrent) {
@@ -3565,10 +3547,10 @@ void Draw_Temperature_Menu() {
     #if HAS_FAN
       FanSpeedItem = EDIT_ITEM(ICON_FanSpeed, MSG_FAN_SPEED, onDrawPInt8Menu, SetFanSpeed, &thermalManager.fan_speed[0]);
     #endif
-    #if ENABLED(PIDTEMP)
-      MENU_ITEM_F(ICON_Temperature, STR_HOTEND_PID " Settings", onDrawSubMenu, Draw_HotendPID_Menu);
-    #elif ENABLED(PIDTEMP) && ENABLED(PIDTEMPBED)
+    #if ENABLED(PIDTEMP) && ENABLED(PIDTEMPBED)
       MENU_ITEM_F(ICON_Temperature, "PID Settings", onDrawSubMenu, Draw_PID_Menu);
+    #elif ENABLED(PIDTEMP)
+      MENU_ITEM_F(ICON_Temperature, STR_HOTEND_PID " Settings", onDrawSubMenu, Draw_HotendPID_Menu);
     #endif
     #if ENABLED(MPCTEMP)
       MENU_ITEM_F(ICON_MPCNozzle, STR_MPC_AUTOTUNE " Settings", onDrawSubMenu, Draw_HotendMPC_Menu);
@@ -3600,7 +3582,7 @@ void Draw_MaxSpeed_Menu() {
 
 void Draw_MaxAccel_Menu() {
   checkkey = Menu;
-  if (SET_MENU(MaxAccelMenu, MSG_AMAX_EN, 5)) {
+  if (SET_MENU(MaxAccelMenu, MSG_ACC, 5)) {
     BACK_ITEM(Draw_Motion_Menu);
     EDIT_ITEM(ICON_MaxAccX, MSG_AMAX_A, onDrawPInt32Menu, SetMaxAccelX, &planner.settings.max_acceleration_mm_per_s2[X_AXIS]);
     EDIT_ITEM(ICON_MaxAccY, MSG_AMAX_B, onDrawPInt32Menu, SetMaxAccelY, &planner.settings.max_acceleration_mm_per_s2[Y_AXIS]);
@@ -3616,7 +3598,7 @@ void Draw_MaxAccel_Menu() {
 
   void Draw_MaxJerk_Menu() {
     checkkey = Menu;
-    if (SET_MENU(MaxJerkMenu, MSG_JERK, 5)) {
+    if (SET_MENU(MaxJerkMenu, MSG_MAX_JERK, 5)) {
       BACK_ITEM(Draw_Motion_Menu);
       EDIT_ITEM(ICON_MaxSpeedJerkX, MSG_VA_JERK, onDrawPFloatMenu, SetMaxJerkX, &planner.max_jerk.x);
       EDIT_ITEM(ICON_MaxSpeedJerkY, MSG_VB_JERK, onDrawPFloatMenu, SetMaxJerkY, &planner.max_jerk.y);
@@ -4067,8 +4049,8 @@ void Draw_AdvancedSettings_Menu() {
       #if ENABLED(MESH_EDIT_MENU)
         MENU_ITEM(ICON_UBLActive, MSG_EDIT_MESH, onDrawSubMenu, Draw_EditMesh_Menu);
       #endif
-        MENU_ITEM(ICON_MeshViewer, MSG_MESH_VIEW, onDrawSubMenu, DWIN_MeshViewer);
       #if ENABLED(USE_UBL_VIEWER)
+        MENU_ITEM(ICON_MeshViewer, MSG_MESH_VIEW, onDrawSubMenu, DWIN_MeshViewer);
         EDIT_ITEM_F(ICON_PrintSize, "Change Mesh Viewer", onDrawChkbMenu, SetViewMesh, &bedLevelTools.view_mesh);
       #endif
       EDIT_ITEM(ICON_UBLSlot, MSG_UBL_STORAGE_SLOT, onDrawUBLSlot, SetUBLSlot, &bedlevel.storage_slot);
@@ -4094,16 +4076,16 @@ void Draw_AdvancedSettings_Menu() {
       #if HAS_BED_PROBE
         MENU_ITEM(ICON_ProbeSet, MSG_ZPROBE_SETTINGS, onDrawSubMenu, Draw_ProbeSet_Menu);
       #endif
-        MENU_ITEM(ICON_PrintSize, MSG_MESH_LEVELING, onDrawSubMenu, Draw_MeshSet_Menu);
-        MENU_ITEM(ICON_MeshViewer, MSG_MESH_VIEW, onDrawSubMenu, DWIN_MeshViewer);
+      MENU_ITEM(ICON_PrintSize, MSG_MESH_LEVELING, onDrawSubMenu, Draw_MeshSet_Menu);
       #if ENABLED(USE_UBL_VIEWER)
+        MENU_ITEM(ICON_MeshViewer, MSG_MESH_VIEW, onDrawSubMenu, DWIN_MeshViewer);
         EDIT_ITEM_F(ICON_PrintSize, "Change Mesh Viewer", onDrawChkbMenu, SetViewMesh, &bedLevelTools.view_mesh);
       #endif
       #if ENABLED(MESH_EDIT_MENU)
         MENU_ITEM(ICON_UBLActive, MSG_EDIT_MESH, onDrawSubMenu, Draw_EditMesh_Menu);
       #endif
-        MENU_ITEM(ICON_Level, MSG_AUTO_MESH, onDrawMenuItem, AutoLev);
-        MENU_ITEM_F(ICON_SetZOffset, "Zero Current Mesh", onDrawMenuItem, ZeroCurrentMesh);
+      MENU_ITEM(ICON_Level, MSG_AUTO_MESH, onDrawMenuItem, AutoLev);
+      MENU_ITEM_F(ICON_SetZOffset, "Zero Current Mesh", onDrawMenuItem, ZeroCurrentMesh);
     #endif
   }
   ui.reset_status(true);
@@ -4119,8 +4101,8 @@ void Draw_AdvancedSettings_Menu() {
     MMeshMoveZItem = EDIT_ITEM(ICON_Zoffset, MSG_MESH_EDIT_Z, onDrawPFloat2Menu, SetMMeshMoveZ, &current_position.z);
     MENU_ITEM(ICON_Axis, MSG_LEVEL_BED_NEXT_POINT, onDrawMenuItem, ManualMeshContinue);
     MENU_ITEM(ICON_PrintSize, MSG_MESH_LEVELING, onDrawSubMenu, Draw_MeshSet_Menu);
-    MENU_ITEM(ICON_MeshViewer, MSG_MESH_VIEW, onDrawSubMenu, DWIN_MeshViewer);
     #if ENABLED(USE_UBL_VIEWER)
+      MENU_ITEM(ICON_MeshViewer, MSG_MESH_VIEW, onDrawSubMenu, DWIN_MeshViewer);
       EDIT_ITEM_F(ICON_PrintSize, "Change Mesh Viewer", onDrawChkbMenu, SetViewMesh, &bedLevelTools.view_mesh);
     #endif
     #if ENABLED(MESH_EDIT_MENU)
