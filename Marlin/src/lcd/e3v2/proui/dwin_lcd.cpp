@@ -110,9 +110,9 @@ void DWIN_WriteToMem(uint8_t mem, uint16_t addr, uint16_t length, uint8_t *data)
     DWIN_Byte(i, mem);
     DWIN_Word(i, addr + indx); // start address of the data block
     ++i;
-    LOOP_L_N(j, i) { LCD_SERIAL.write(DWIN_SendBuf[j]); delayMicroseconds(1); }  // Buf header
-    for (uint16_t j = indx; j <= indx + to_send - 1; j++) LCD_SERIAL.write(*(data + j)); delayMicroseconds(1);  // write block of data
-    LOOP_L_N(j, 4) { LCD_SERIAL.write(DWIN_BufTail[j]); delayMicroseconds(1); }
+    for (uint8_t j = 0; j < i; ++j) { LCD_SERIAL.write(DWIN_SendBuf[j]); delayMicroseconds(1); }  // Buf header
+    for (uint16_t j = indx; j <= indx + to_send - 1; j++) { LCD_SERIAL.write(*(data + j)); delayMicroseconds(1); } // write block of data
+    for (uint8_t j = 0; j < 4; ++j) { LCD_SERIAL.write(DWIN_BufTail[j]); delayMicroseconds(1); }
     block++;
     pending -= to_send;
   }
@@ -131,10 +131,10 @@ void DACAI_ICON_Show(uint16_t x, uint16_t y, uint16_t addr) {
 }
 
 void DWIN_ICON_Show(uint16_t x, uint16_t y, uint16_t addr) {
-  #if ENABLED(HAS_DACAI) || DISABLED(HAS_DWIN)
+  #if ENABLED(DACAI_DISPLAY) || DISABLED(DWIN_DISPLAY)
     DACAI_ICON_Show(x, y, addr);
   #endif
-  #if ENABLED(HAS_DWIN) || DISABLED(HAS_DACAI)
+  #if ENABLED(DWIN_DISPLAY) || DISABLED(DACAI_DISPLAY)
     DWIN_ICON_Show(0, 0, 1, x, y, addr);
   #endif
 }

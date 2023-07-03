@@ -1,8 +1,8 @@
 /**
  * DWIN Enhanced implementation for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 3.20.1
- * Date: 2022/10/25
+ * Version: 3.21.1
+ * Date: 2023/03/21
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -25,12 +25,13 @@
 
 #include "dwin_defines.h"
 #include "dwinui.h"
+#include "dwin.h"
 
 xy_int_t DWINUI::cursor = { 0 };
-uint16_t DWINUI::pencolor = Color_White;
-uint16_t DWINUI::textcolor = Def_Text_Color;
-uint16_t DWINUI::backcolor = Def_Background_Color;
-uint16_t DWINUI::buttoncolor = Def_TitleBg_Color;
+//uint16_t DWINUI::pencolor = Color_White;
+uint16_t DWINUI::textcolor = HMI_data.Text_Color;
+uint16_t DWINUI::backcolor = HMI_data.Background_Color;
+uint16_t DWINUI::buttoncolor = HMI_data.TitleBg_Color;
 uint8_t  DWINUI::fontid = font8x16;
 FSTR_P const DWINUI::Author = F(STRING_CONFIG_H_AUTHOR);
 
@@ -38,10 +39,10 @@ void (*DWINUI::onTitleDraw)(TitleClass* title) = nullptr;
 
 void DWINUI::init() {
   cursor.reset();
-  pencolor = Color_White;
-  textcolor = Def_Text_Color;
-  backcolor = Def_Background_Color;
-  buttoncolor = Def_TitleBg_Color;
+  //pencolor = Color_White;
+  textcolor = HMI_data.Text_Color;
+  backcolor = HMI_data.Background_Color;
+  buttoncolor = HMI_data.TitleBg_Color;
   fontid = font8x16;
 }
 
@@ -51,16 +52,18 @@ void DWINUI::setFont(fontid_t fid) { fontid = fid; }
 // Get font character width
 uint8_t DWINUI::fontWidth(fontid_t fid) {
   switch (fid) {
-    case font6x12 : return 6;
+    #if DISABLED(TJC_DISPLAY)
+      case font6x12 : return 6;
+      case font20x40: return 20;
+      case font24x48: return 24;
+      case font28x56: return 28;
+      case font32x64: return 32;
+    #endif
     case font8x16 : return 8;
     case font10x20: return 10;
     case font12x24: return 12;
     case font14x28: return 14;
     case font16x32: return 16;
-    case font20x40: return 20;
-    case font24x48: return 24;
-    case font28x56: return 28;
-    case font32x64: return 32;
     default: return 0;
   }
 }
@@ -68,16 +71,18 @@ uint8_t DWINUI::fontWidth(fontid_t fid) {
 // Get font character height
 uint8_t DWINUI::fontHeight(fontid_t fid) {
   switch (fid) {
-    case font6x12 : return 12;
+    #if DISABLED(TJC_DISPLAY)
+      case font6x12 : return 12;
+      case font20x40: return 40;
+      case font24x48: return 48;
+      case font28x56: return 56;
+      case font32x64: return 64;
+    #endif
     case font8x16 : return 16;
     case font10x20: return 20;
     case font12x24: return 24;
     case font14x28: return 28;
     case font16x32: return 32;
-    case font20x40: return 40;
-    case font24x48: return 48;
-    case font28x56: return 56;
-    case font32x64: return 64;
     default: return 0;
   }
 }
@@ -169,7 +174,7 @@ void DWINUI::Draw_String(uint16_t color, const char * const string, uint16_t rli
 //  iNum: Number of digits
 //  x/y: Upper-left coordinate
 //  value: Integer value
-void DWINUI::Draw_Int(uint8_t bShow, bool signedMode, fontid_t fid, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, int32_t value) {
+void DWINUI::Draw_Int(uint8_t bShow, bool signedMode, fontid_t fid, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, long value) {
   char nstr[10];
   sprintf_P(nstr, PSTR("%*li"), (signedMode ? iNum + 1 : iNum), value);
   DWIN_Draw_String(bShow, fid, color, bColor, x, y, nstr);
@@ -205,6 +210,12 @@ void DWINUI::ICON_Show(bool BG, uint8_t icon, uint16_t x, uint16_t y) {
 
 // ------------------------- Buttons ------------------------------//
 
+void DWINUI::Draw_Select_Box(uint16_t xpos, uint16_t ypos) {
+  const uint16_t c1 = HMI_data.Cursor_Color;
+  DWIN_Draw_Rectangle(0, c1, xpos - 1, ypos - 1, xpos + 100, ypos + 38);
+  DWIN_Draw_Rectangle(0, c1, xpos - 2, ypos - 2, xpos + 101, ypos + 39);
+}
+
 void DWINUI::Draw_Button(uint16_t color, uint16_t bcolor, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, const char * const caption) {
   DWIN_Draw_Rectangle(1, bcolor, x1, y1, x2, y2);
   Draw_CenteredString(0, fontid, color, bcolor, x1, x2, (y2 + y1 - fontHeight())/2, caption);
@@ -222,6 +233,18 @@ void DWINUI::Draw_Button(uint8_t id, uint16_t x, uint16_t y) {
   }
 }
 
+void DWINUI::Draw_Button(uint8_t id, uint16_t x, uint16_t y, bool sel) {
+  if (sel) { Draw_Select_Box(x, y); }
+  switch (id) {
+    case BTN_Cancel  : Draw_Button(GET_TEXT_F(MSG_BUTTON_CANCEL), x, y); break;
+    case BTN_Confirm : Draw_Button(GET_TEXT_F(MSG_BUTTON_CONFIRM), x, y); break;
+    case BTN_Continue: Draw_Button(GET_TEXT_F(MSG_BUTTON_CONTINUE), x, y); break;
+    case BTN_Print   : Draw_Button(GET_TEXT_F(MSG_BUTTON_PRINT), x, y); break;
+    case BTN_Save    : Draw_Button(GET_TEXT_F(MSG_BUTTON_SAVE), x, y); break;
+    case BTN_Purge   : Draw_Button(GET_TEXT_F(MSG_BUTTON_PURGE), x, y); break;
+    default: break;
+  }
+}
 // -------------------------- Extra -------------------------------//
 
 // Draw a circle
@@ -252,15 +275,13 @@ void DWINUI::Draw_Circle(uint16_t color, uint16_t x, uint16_t y, uint8_t r) {
 //  y: ordinate of the center of the circle
 //  r: circle radius
 void DWINUI::Draw_FillCircle(uint16_t bcolor, uint16_t x,uint16_t y,uint8_t r) {
-  int a = 0, b = 0;
-  while (a <= b) {
-    b = SQRT(sq(r) - sq(a)); // b=sqrt(r*r-a*a);
-    if (a == 0) b--;
-    DWIN_Draw_Line(bcolor, x-b,y-a,x+b,y-a);
-    DWIN_Draw_Line(bcolor, x-a,y-b,x+a,y-b);
-    DWIN_Draw_Line(bcolor, x-b,y+a,x+b,y+a);
+  DWIN_Draw_Line(bcolor, x-r,y,x+r,y);
+  uint16_t b = 1;
+  while (b <= r) {
+    uint16_t a = SQRT(sq(r) - sq(b));
     DWIN_Draw_Line(bcolor, x-a,y+b,x+a,y+b);
-    a++;
+    DWIN_Draw_Line(bcolor, x-a,y-b,x+a,y-b);
+    b+=TERN(TJC_DISPLAY,2,1);
   }
 }
 
@@ -272,14 +293,14 @@ void DWINUI::Draw_FillCircle(uint16_t bcolor, uint16_t x,uint16_t y,uint8_t r) {
 //  color2 : End color
 uint16_t DWINUI::ColorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t color1, uint16_t color2) {
   uint8_t B, G, R;
-  const float n = float(val - minv) / (maxv - minv);
+  const float n = (float)(val - minv) / (maxv - minv);
   R = (1 - n) * GetRColor(color1) + n * GetRColor(color2);
   G = (1 - n) * GetGColor(color1) + n * GetGColor(color2);
   B = (1 - n) * GetBColor(color1) + n * GetBColor(color2);
   return RGB(R, G, B);
 }
 
-// Color Interpolator through Red->Yellow->Green->Blue (Pro UI)
+// Color Interpolator through Red->Orange->Yellow->Green->Blue (Pro UI)
 //  val : Interpolator minv..maxv
 //  minv : Minimum value
 //  maxv : Maximum value
@@ -287,12 +308,17 @@ uint16_t DWINUI::RainbowInt(int16_t val, int16_t minv, int16_t maxv) {
   uint8_t B, G, R;
   const uint8_t maxB = 28, maxR = 28, maxG = 38;
   const int16_t limv = _MAX(abs(minv), abs(maxv));
-  float n = minv >= 0 ? float(val - minv) / (maxv - minv) : (float)val / limv;
+  float n = (minv >= 0) ? (float)(val - minv) / (maxv - minv) : (float)val / limv;
   LIMIT(n, -1, 1);
-  if (n < 0) {
+  if (n <= -0.5) {
     R = 0;
-    G = (1 + n) * maxG;
-    B = (-n) * maxB;
+    G = maxG * (1 + n);
+    B = maxB;
+  }
+  else if (n <= 0) {
+    R = 0;
+    G = maxG;
+    B = maxB * (-n) * 2;
   }
   else if (n < 0.5) {
     R = maxR * n * 2;

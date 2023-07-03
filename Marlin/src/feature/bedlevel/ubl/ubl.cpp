@@ -51,8 +51,7 @@ void unified_bed_leveling::report_current_mesh() {
   GRID_LOOP(x, y)
     if (!isnan(z_values[x][y])) {
       SERIAL_ECHO_START();
-      SERIAL_ECHOPGM("  M421 I", x, " J", y);
-      SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, z_values[x][y], 4);
+      SERIAL_ECHOLN(F("  M421 I"), x, F(" J"), y, FPSTR(SP_Z_STR), p_float_t(z_values[x][y], 4));
       serial_delay(75); // Prevent Printrun from exploding
     }
 }
@@ -65,15 +64,13 @@ void unified_bed_leveling::report_state() {
 
 int8_t unified_bed_leveling::storage_slot;
 
-#if ProUIex
+#if PROUI_EX
   float unified_bed_leveling::z_values[GRID_LIMIT][GRID_LIMIT];
 #else
   float unified_bed_leveling::z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 #endif
 
-#define _GRIDPOS(A,N) (MESH_MIN_##A + N * (MESH_##A##_DIST))
-
-#if DISABLED(ProUIex)
+#if DISABLED(PROUI_EX)
   #define _GRIDPOS(A,N) (MESH_MIN_##A + N * (MESH_##A##_DIST))
 
   const float
@@ -157,7 +154,7 @@ static void serial_echo_xy(const uint8_t sp, const int16_t x, const int16_t y) {
 
 static void serial_echo_column_labels(const uint8_t sp) {
   SERIAL_ECHO_SP(7);
-  LOOP_L_N(i, GRID_MAX_POINTS_X) {
+  for (uint8_t i = 0; i < GRID_MAX_POINTS_X; ++i) {
     if (i < 10) SERIAL_CHAR(' ');
     SERIAL_ECHO(i);
     SERIAL_ECHO_SP(sp);
@@ -175,7 +172,7 @@ static void serial_echo_column_labels(const uint8_t sp) {
 void unified_bed_leveling::display_map(const uint8_t map_type) {
   const bool was = gcode.set_autoreport_paused(true);
 
-  IF_DISABLED(ProUIex, constexpr) uint8_t eachsp = 1 + 6 + 1,                           // [-3.567]
+  IF_DISABLED(PROUI_EX, constexpr) uint8_t eachsp = 1 + 6 + 1,                           // [-3.567]
                     twixt = eachsp * (GRID_MAX_POINTS_X) - 9 * 2; // Leading 4sp, Coordinates 9sp each
 
   const bool human = !(map_type & 0x3), csv = map_type == 1, lcd = map_type == 2, comp = map_type & 0x4;
@@ -207,7 +204,7 @@ void unified_bed_leveling::display_map(const uint8_t map_type) {
     }
 
     // Row Values (I indexes)
-    LOOP_L_N(i, GRID_MAX_POINTS_X) {
+    for (uint8_t i = 0; i < GRID_MAX_POINTS_X; ++i) {
 
       // Opening Brace or Space
       const bool is_current = i == curr.x && j == curr.y;
@@ -219,10 +216,10 @@ void unified_bed_leveling::display_map(const uint8_t map_type) {
         // TODO: Display on Graphical LCD
       }
       else if (isnan(f))
-        SERIAL_ECHOF(human ? F("  .   ") : F("NAN"));
+        SERIAL_ECHO(human ? F("  .   ") : F("NAN"));
       else if (human || csv) {
         if (human && f >= 0) SERIAL_CHAR(f > 0 ? '+' : ' ');  // Display sign also for positive numbers (' ' for 0)
-        SERIAL_DECIMAL(f);                                    // Positive: 5 digits, Negative: 6 digits
+        SERIAL_ECHO(p_float_t(f, 3));                         // Positive: 5 digits, Negative: 6 digits
       }
       if (csv && i < (GRID_MAX_POINTS_X) - 1) SERIAL_CHAR('\t');
 

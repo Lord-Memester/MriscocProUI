@@ -1,8 +1,8 @@
 /**
  * DWIN End Stops diagnostic page for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 1.3.3
- * Date: 2022/10/07
+ * Version: 1.4.3
+ * Date: 2023/05/10
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -21,7 +21,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if BOTH(DWIN_LCD_PROUI, HAS_ESDIAG)
+#if ALL(DWIN_LCD_PROUI, HAS_ESDIAG)
 
 #include "endstop_diag.h"
 
@@ -38,7 +38,7 @@
   #include "../../../module/probe.h"
 #endif
 
-ESDiagClass ESDiag;
+ESDiag esDiag;
 
 void draw_es_label(FSTR_P const flabel=nullptr) {
   DWINUI::cursor.x = 40;
@@ -55,12 +55,12 @@ void draw_es_state(const bool is_hit) {
   DWINUI::MoveBy(0, 25);
 }
 
-void ESDiagClass::Draw() {
-  Title.ShowCaption(F("End-stops Diagnostic"));  // Title.ShowCaption(GET_TEXT_F(MSG_ENDSTOP_TEST));
+void ESDiag::draw() {
+  Title.ShowCaption(GET_TEXT_F(MSG_ENDSTOP_TEST));
   DWINUI::ClearMainArea();
   Draw_Popup_Bkgd();
-  DWINUI::Draw_Button(BTN_Continue, 86, 250);
-  Draw_Select_Box(86, 250);
+  DWINUI::Draw_Button(BTN_Continue, 86, 250, true);
+  //Draw_Select_Box(86, 250);
   DWINUI::cursor.y = 80;
   #define ES_LABEL(S) draw_es_label(F(STR_##S))
   #if USE_X_MIN
@@ -90,28 +90,28 @@ void ESDiagClass::Draw() {
   TERN_(HAS_Z_MIN_PIN, ES_LABEL(Z_MIN)); TERN_(USE_Z_MAX, ES_LABEL(Z_MAX));
   TERN_(HAS_FILAMENT_SENSOR, draw_es_label(F(STR_FILAMENT)));
 */
-  Update();
+  update();
 }
 
-void ESDiagClass::Update() {
+void ESDiag::update() {
   DWINUI::cursor.y = 80;
   #define ES_REPORT(S) draw_es_state(READ(S##_PIN) == S##_ENDSTOP_HIT_STATE)
   #if USE_X_MIN
     ES_REPORT(X_MIN);
   #endif
-  TERN_(USE_X_MAX, ES_REPORT(X_MAX));
+  TERN_(USE_X_MAX, ES_REPORT(X_MAX);)
   #if USE_Y_MIN
     ES_REPORT(Y_MIN);
   #endif
-  TERN_(USE_Y_MAX, ES_REPORT(Y_MAX));
+  TERN_(USE_Y_MAX, ES_REPORT(Y_MAX);)
   #if !USE_Z_MIN_PROBE
     #if HAS_Z_MIN_PIN
       ES_REPORT(Z_MIN);
     #endif
-    TERN_(USE_Z_MAX, ES_REPORT(Z_MAX));
+    TERN_(USE_Z_MAX, ES_REPORT(Z_MAX);)
   #endif
   #if HAS_FILAMENT_SENSOR
-    #if ProUIex
+    #if PROUI_EX
       draw_es_state(!FilamentSensorDevice::poll_runout_state(0));
     #else
       draw_es_state(READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE);
@@ -121,10 +121,10 @@ void ESDiagClass::Update() {
   //  draw_es_state(READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING);
   //#endif
 /*
-  TERN_(USE_X_MIN,     ES_REPORT(X_MIN)); TERN_(USE_X_MAX, ES_REPORT(X_MAX));
-  TERN_(USE_Y_MIN,     ES_REPORT(Y_MIN)); TERN_(USE_Y_MAX, ES_REPORT(Y_MAX));
-  TERN_(HAS_Z_MIN_PIN, ES_REPORT(Z_MIN)); TERN_(USE_Z_MAX, ES_REPORT(Z_MAX));
-  TERN_(HAS_FILAMENT_SENSOR, draw_es_state(READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE));
+  TERN_(USE_X_MIN,     ES_REPORT(X_MIN);) TERN_(USE_X_MAX, ES_REPORT(X_MAX);)
+  TERN_(USE_Y_MIN,     ES_REPORT(Y_MIN);) TERN_(USE_Y_MAX, ES_REPORT(Y_MAX);)
+  TERN_(HAS_Z_MIN_PIN, ES_REPORT(Z_MIN);) TERN_(USE_Z_MAX, ES_REPORT(Z_MAX);)
+  TERN_(HAS_FILAMENT_SENSOR, draw_es_state(READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE);)
 
 */
   DWIN_UpdateLCD();

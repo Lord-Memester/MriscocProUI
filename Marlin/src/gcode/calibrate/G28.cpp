@@ -36,10 +36,6 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
-#if ENABLED(BD_SENSOR)
-  #include "../../feature/bedlevel/bdl/bdl.h"
-#endif
-
 #if ENABLED(SENSORLESS_HOMING)
   #include "../../feature/tmc_util.h"
 #endif
@@ -121,12 +117,12 @@
      * Move the Z probe (or just the nozzle) to the safe homing point
      * (Z is already at the right height)
      */
-    TERN(ProUIex, , constexpr) xy_float_t safe_homing_xy = { Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT };
+    TERN(PROUI_EX, , constexpr) xy_float_t safe_homing_xy = { Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT };
     #if HAS_HOME_OFFSET && DISABLED(Z_SAFE_HOMING_POINT_ABSOLUTE)
       xy_float_t okay_homing_xy = safe_homing_xy;
       okay_homing_xy -= home_offset;
     #else
-      TERN(ProUIex, , constexpr) xy_float_t okay_homing_xy = safe_homing_xy;
+      TERN(PROUI_EX, , constexpr) xy_float_t okay_homing_xy = safe_homing_xy;
     #endif
 
     destination.set(okay_homing_xy, current_position.z);
@@ -227,8 +223,6 @@ void GcodeSuite::G28() {
     return;
   }
 
-  TERN_(BD_SENSOR, bdl.config_state = 0);
-
   #if ENABLED(FULL_REPORT_TO_HOST_FEATURE)
     const M_StateEnum old_grblstate = M_State_grbl;
     set_and_report_grblstate(M_HOMING);
@@ -272,7 +266,7 @@ void GcodeSuite::G28() {
 
     #if HAS_HOMING_CURRENT
       auto debug_current = [](FSTR_P const s, const int16_t a, const int16_t b) {
-        DEBUG_ECHOF(s); DEBUG_ECHOLNPGM(" current: ", a, " -> ", b);
+        DEBUG_ECHOLN(s, F(" current: "), a, F(" -> "), b);
       };
       #if HAS_CURRENT_HOME(X)
         const int16_t tmc_save_current_X = stepperX.getMilliamps();
@@ -420,8 +414,13 @@ void GcodeSuite::G28() {
         // Use raise given by 'R' or Z_CLEARANCE_FOR_HOMING (above the probe trigger point)
         float z_homing_height = seenR ? parser.value_linear_units() : Z_CLEARANCE_FOR_HOMING;
 
-        // Check for any lateral motion that might require clearance
-        const bool may_skate = seenR NUM_AXIS_GANG(|| doX, || doY, || TERN0(Z_SAFE_HOMING, doZ), || doI, || doJ, || doK, || doU, || doV, || doW);
+        #if ENABLED(CV_LASER_MODULE)
+          // Check for any lateral motion that might require clearance
+          const bool may_skate = !laser_device.is_laser_device() && (seenR || NUM_AXIS_GANG(doX, || doY, || TERN0(Z_SAFE_HOMING, doZ), || doI, || doJ, || doK, || doU, || doV, || doW));
+        #else
+          // Check for any lateral motion that might require clearance
+          const bool may_skate = seenR || NUM_AXIS_GANG(doX, || doY, || TERN0(Z_SAFE_HOMING, doZ), || doI, || doJ, || doK, || doU, || doV, || doW);
+        #endif
 
         if (seenR && z_homing_height == 0) {
           if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("R0 = No Z raise");
@@ -484,7 +483,7 @@ void GcodeSuite::G28() {
         }
       #endif // HAS_X_AXIS
 
-      #if BOTH(FOAMCUTTER_XYUV, HAS_I_AXIS)
+      #if ALL(FOAMCUTTER_XYUV, HAS_I_AXIS)
         // Home I (after X)
         if (doI) homeaxis(I_AXIS);
       #endif
@@ -495,7 +494,7 @@ void GcodeSuite::G28() {
           homeaxis(Y_AXIS);
       #endif
 
-      #if BOTH(FOAMCUTTER_XYUV, HAS_J_AXIS)
+      #if ALL(FOAMCUTTER_XYUV, HAS_J_AXIS)
         // Home J (after Y)
         if (doJ) homeaxis(J_AXIS);
       #endif
@@ -511,8 +510,8 @@ void GcodeSuite::G28() {
 
         // Home Z last if homing towards the bed
         #if DISABLED(HOME_Z_FIRST)
-          if (doZ) {
-            #if EITHER(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
+          if (doZ && TERN1(CV_LASER_MODULE, !laser_device.is_laser_device())) {
+            #if ANY(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
               stepper.set_all_z_lock(false);
               stepper.set_separate_multi_axis(false);
             #endif
@@ -523,7 +522,7 @@ void GcodeSuite::G28() {
               homeaxis(Z_AXIS);
             #endif
 
-            #if EITHER(Z_HOME_TO_MIN, ALLOW_Z_AFTER_HOMING)
+            #if ANY(Z_HOME_TO_MIN, ALLOW_Z_AFTER_HOMING)
               finalRaiseZ = true;
             #endif
           }

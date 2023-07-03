@@ -1,8 +1,8 @@
 /**
  * DWIN End Stops diagnostic page for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 1.3.3
- * Date: 2022/10/07
+ * Version: 1.4.3
+ * Date: 2023/05/10
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -20,10 +20,10 @@
  */
 #pragma once
 
-class ESDiagClass {
+class ESDiag {
 public:
-  void Draw();
-  void Update();
+  static void draw();
+  static void update();
 };
 
-extern ESDiagClass ESDiag;
+extern ESDiag esDiag;

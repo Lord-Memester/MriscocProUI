@@ -58,7 +58,7 @@
   #include "../../src/lcd/menu/menu.h"
 #endif
 
-#define DEBUG_OUT EITHER(DEBUG_CARDREADER, MARLIN_DEV_MODE)
+#define DEBUG_OUT ANY(DEBUG_CARDREADER, MARLIN_DEV_MODE)
 #include "../core/debug_out.h"
 #include "../libs/hex_print.h"
 
@@ -174,7 +174,7 @@ CardReader::CardReader() {
   workDirDepth = 0;
   ZERO(workDirParents);
 
-  #if BOTH(HAS_MEDIA, HAS_SD_DETECT)
+  #if ALL(HAS_MEDIA, HAS_SD_DETECT)
     SET_INPUT_PULLUP(SD_DETECT_PIN);
   #endif
 
@@ -188,7 +188,7 @@ CardReader::CardReader() {
 //
 char *createFilename(char * const buffer, const dir_t &p) {
   char *pos = buffer;
-  LOOP_L_N(i, 11) {
+  for (uint8_t i = 0; i < 11; ++i) {
     if (p.name[i] == ' ') continue;
     if (i == 8) *pos++ = '.';
     *pos++ = p.name[i];
@@ -351,7 +351,7 @@ void CardReader::printListing(MediaFile parent, const char * const prepend, cons
 //
 // List all files on the SD card
 //
-void CardReader::ls(const uint8_t lsflags) {
+void CardReader::ls(const uint8_t lsflags/*=0*/) {
   if (flag.mounted) {
     root.rewind();
     printListing(root, nullptr, lsflags);
@@ -497,8 +497,8 @@ void CardReader::mount() {
   if (flag.mounted)
     cdroot();
   else {
-    #if EITHER(HAS_SD_DETECT, USB_FLASH_DRIVE_SUPPORT)
-      if (marlin_state != MF_INITIALIZING) LCD_ALERTMESSAGE(MSG_MEDIA_INIT_FAIL);
+    #if ANY(HAS_SD_DETECT, USB_FLASH_DRIVE_SUPPORT)
+      if (marlin_state != MF_INITIALIZING) LCD_MESSAGE(MSG_MEDIA_INIT_FAIL);
     #endif
   }
 
@@ -551,13 +551,13 @@ void CardReader::manage_media() {
 
   // First mount on boot? Load emulated EEPROM and look for PLR file.
   if (old_stat == 2) {
-  DEBUG_ECHOLNPGM("First mount.");
+    DEBUG_ECHOLNPGM("First mount.");
 
-  // Load settings the first time media is inserted (not just during init)
-  TERN_(SDCARD_EEPROM_EMULATION, settings.first_load());
+    // Load settings the first time media is inserted (not just during init)
+    TERN_(SDCARD_EEPROM_EMULATION, settings.first_load());
 
     // Check for PLR file. Skip One-Click and auto#.g if found
-  TERN_(POWER_LOSS_RECOVERY, if (recovery.check()) do_auto = false);
+    TERN_(POWER_LOSS_RECOVERY, if (recovery.check()) do_auto = false);
   }
 
   // Find the newest file and prompt to print it.
@@ -566,9 +566,9 @@ void CardReader::manage_media() {
   // Also for the first mount run auto#.g for machine init.
   // (Skip if PLR or One-Click Print was invoked.)
   if (old_stat == 2) {
-  // Look for auto0.g on the next idle()
-  IF_DISABLED(NO_SD_AUTOSTART, if (do_auto) autofile_begin());
-}
+    // Look for auto0.g on the next idle()
+    IF_DISABLED(NO_SD_AUTOSTART, if (do_auto) autofile_begin());
+  }
 }
 
 /**
@@ -619,7 +619,7 @@ void CardReader::startOrResumeFilePrinting() {
 //
 void CardReader::endFilePrintNow(TERN_(SD_RESORT, const bool re_sort/*=false*/)) {
   TERN_(ADVANCED_PAUSE_FEATURE, did_pause_print = 0);
-  TERN_(DWIN_CREALITY_LCD, HMI_flag.print_finish = flag.sdprinting);
+  TERN_(DWIN_CREALITY_LCD, hmiFlag.print_finish = flag.sdprinting);
   flag.abort_sd_printing = false;
   if (isFileOpen()) file.close();
   TERN_(SD_RESORT, if (re_sort) presort());
@@ -648,7 +648,7 @@ void CardReader::getAbsFilenameInCWD(char *dst) {
     if (cnt < MAXPATHNAMELENGTH) { *dst = '/'; dst++; cnt++; }
   };
 
-  LOOP_L_N(i, workDirDepth)                // Loop down to current work dir
+  for (uint8_t i = 0; i < workDirDepth; ++i)                // Loop down to current work dir
     appendAtom(workDirParents[i]);
 
   if (cnt < MAXPATHNAMELENGTH - (FILENAME_LENGTH) - 1) {    // Leave room for filename and nul
@@ -666,9 +666,7 @@ void announceOpen(const uint8_t doing, const char * const path) {
   if (doing) {
     PORT_REDIRECT(SerialMask::All);
     SERIAL_ECHO_START();
-    SERIAL_ECHOPGM("Now ");
-    SERIAL_ECHOF(doing == 1 ? F("doing") : F("fresh"));
-    SERIAL_ECHOLNPGM(" file: ", path);
+    SERIAL_ECHOLN(F("Now "), doing == 1 ? F("doing") : F("fresh"), F(" file: "), path);
   }
 }
 
@@ -717,6 +715,10 @@ void CardReader::openFileRead(const char * const path, const uint8_t subcall_typ
         break;
 
     #endif
+
+    #if PROUI_EX
+       case 100: break;  // Reserved for read file header.
+    #endif
   }
 
   abortFilePrintNow();
@@ -737,6 +739,7 @@ void CardReader::openFileRead(const char * const path, const uint8_t subcall_typ
 
     selectFileByName(fname);
     ui.set_status(longFilename[0] ? longFilename : fname);
+    TERN_(DWIN_LCD_PROUI, DWIN_Print_Header(longFilename[0] ? longFilename : fname));
   }
   else
     openFailed(fname);
@@ -1353,7 +1356,7 @@ void CardReader::cdroot() {
       }
       else {
         sort_order[0] = 0;
-        #if BOTH(SDSORT_USES_RAM, SDSORT_CACHE_NAMES)
+        #if ALL(SDSORT_USES_RAM, SDSORT_CACHE_NAMES)
           #if ENABLED(SDSORT_DYNAMIC_RAM)
             sortnames = new char*[1];
             sortshort = new char*[1];
@@ -1375,7 +1378,7 @@ void CardReader::cdroot() {
       #if ENABLED(SDSORT_DYNAMIC_RAM)
         delete [] sort_order;
         #if ENABLED(SDSORT_CACHE_NAMES)
-          LOOP_L_N(i, sort_count) {
+          for (uint8_t i = 0; i < sort_count; ++i) {
             free(sortshort[i]); // strdup
             free(sortnames[i]); // strdup
           }
@@ -1445,8 +1448,7 @@ void CardReader::fileHasFinished() {
       recovery.init();
       removeFile(recovery.filename);
       #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
-        SERIAL_ECHOPGM("Power-loss file delete");
-        SERIAL_ECHOF(jobRecoverFileExists() ? F(" failed.\n") : F("d.\n"));
+        SERIAL_ECHOLN(F("Power-loss file delete"), jobRecoverFileExists() ? F(" failed.") : F("d."));
       #endif
     }
   }

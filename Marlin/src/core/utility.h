@@ -33,7 +33,7 @@ void safe_delay(millis_t ms);           // Delay ensuring that temperatures are 
   inline void serial_delay(const millis_t) {}
 #endif
 
-#if TERN(ProUIex, HAS_MESH, (GRID_MAX_POINTS_X) && (GRID_MAX_POINTS_Y))
+#if TERN(PROUI_EX, HAS_MESH, (GRID_MAX_POINTS_X) && (GRID_MAX_POINTS_Y))
 
   // 16x16 bit arrays
   template <int W, int H>
@@ -49,7 +49,7 @@ void safe_delay(millis_t ms);           // Delay ensuring that temperatures are 
     inline bool marked(const xy_int8_t &xy)       { return marked(xy.x, xy.y); }
   };
 
-  #if ProUIex
+  #if PROUI_EX
     typedef FlagBits<GRID_LIMIT, GRID_LIMIT> MeshFlags;
   #else
     typedef FlagBits<GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y> MeshFlags;
@@ -95,4 +95,23 @@ const xyze_char_t axis_codes LOGICAL_AXIS_ARRAY('E', 'X', 'Y', 'Z', AXIS4_NAME, 
   const xyze_char_t iaxis_codes LOGICAL_AXIS_ARRAY('E', 'X', 'Y', 'Z', 'I', 'J', 'K', 'U', 'V', 'W');
   #define AXIS_CHAR(A) axis_codes[A]
   #define IAXIS_CHAR(A) iaxis_codes[A]
+#endif
+
+#if ENABLED(MARLIN_DEV_MODE)
+  enum MarlinError : uint8_t {
+    ERR_NONE,
+    ERR_STRING_RANGE, // A string buffer was too small to set the whole blob
+    ERR_ASSERTION,    // An assertion was triggered
+    ERR_MALFUNCTION,
+    ERR_MEMORY_LEAK,
+    ERR_COMMS_SERIAL,
+    ERR_COMMS_SPI,
+    ERR_PLANNER_STARVED,
+    ERR_TMC_SHUTDOWN,
+    ERR_PROCEDURE_FAILED,
+    ERR_TOO_WACK,
+    ERR_PLAID_IN_SUMMER
+  };
+  extern MarlinError marlin_error_number;   // Error Number - Marlin can beep, display, and emit...
+  inline void error(const MarlinError err) { marlin_error_number = err; }
 #endif

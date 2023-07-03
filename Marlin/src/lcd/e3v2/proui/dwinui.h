@@ -2,7 +2,7 @@
  * DWIN Enhanced implementation for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
  * Version: 3.21.1
- * Date: 2022/12/02
+ * Date: 2023/03/21
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -51,7 +51,6 @@
 #define ICON_BedTramming       CI(1,ICON_SetHome)
 #define ICON_Binary            CI(1,ICON_Contact)
 #define ICON_BltouchReset      CI(1,ICON_StockConfiguration)
-//#define ICON_Brightness        CI(1,ICON_Motion)
 #define ICON_Cancel            CI(1,ICON_StockConfiguration)
 #define ICON_CustomPreheat     CI(1,ICON_SetBedTemp)
 #define ICON_Error             CI(1,ICON_TempTooHigh)
@@ -59,6 +58,7 @@
 #define ICON_ExtrudeMinT       CI(1,ICON_HotendTemp)
 #define ICON_FilLoad           CI(1,ICON_WriteEEPROM)
 #define ICON_FilMan            CI(1,ICON_ResumeEEPROM)
+#define ICON_FilRunOut         CI(1,ICON_MaxAccE)
 #define ICON_FilSet            CI(1,ICON_ResumeEEPROM)
 #define ICON_FilUnload         CI(1,ICON_ReadEEPROM)
 #define ICON_Flow              CI(1,ICON_StepE)
@@ -94,6 +94,7 @@
 #define ICON_MeshEditZ         CI(1,ICON_MoveZ)
 #define ICON_MeshNext          CI(1,ICON_Axis)
 #define ICON_MeshPoints        CI(1,ICON_SetEndTemp)
+#define ICON_MeshReset         CI(1,ICON_StockConfiguration)
 #define ICON_MeshSave          CI(1,ICON_WriteEEPROM)
 #define ICON_MeshViewer        CI(1,ICON_HotendTemp)
 #define ICON_MoveZ0            CI(1,ICON_SetEndTemp)
@@ -161,6 +162,13 @@
 #define ICON_UBLTiltGrid       CI(1,ICON_PrintSize)
 #define ICON_UBLSmartFill      CI(1,ICON_StockConfiguration)
 #define ICON_ZAfterHome        CI(1,ICON_SetEndTemp)
+
+//LASER CRC
+#define ICON_LaserFocus        CI(1,ICON_MoveZ)
+#define ICON_LaserPrint        CI(1,ICON_StockConfiguration)
+#define ICON_LaserRunRange     CI(1,ICON_PrintSize)
+#define ICON_LaserSet          CI(1,ICON_StockConfiguration)
+#define ICON_LaserToggle       CI(1,ICON_Motion)
 
 //LED Lights
 #define ICON_CaseLight         CI(1,ICON_Motion)
@@ -254,7 +262,7 @@ extern TitleClass Title;
 
 namespace DWINUI {
   extern xy_int_t cursor;
-  extern uint16_t pencolor;
+  //extern uint16_t pencolor;
   extern uint16_t textcolor;
   extern uint16_t backcolor;
   extern uint16_t buttoncolor;
@@ -271,11 +279,11 @@ namespace DWINUI {
 
   // Get font character width
   uint8_t fontWidth(fontid_t cfont);
-  inline uint8_t fontWidth() { return fontWidth(fontid); };
+  inline uint8_t fontWidth() { return fontWidth(fontid); }
 
   // Get font character height
   uint8_t fontHeight(fontid_t cfont);
-  inline uint8_t fontHeight() { return fontHeight(fontid); };
+  inline uint8_t fontHeight() { return fontHeight(fontid); }
 
   // Get screen x coordinates from text column
   uint16_t ColToX(uint8_t col);
@@ -302,7 +310,7 @@ namespace DWINUI {
   void MoveBy(int16_t x, int16_t y);
   void MoveBy(xy_int_t point);
 
-  // Draw a line from the cursor to xy position
+  /*/ Draw a line from the cursor to xy position
   //  color: Line segment color
   //  x/y: End point
   inline void LineTo(uint16_t color, uint16_t x, uint16_t y) {
@@ -311,7 +319,7 @@ namespace DWINUI {
   inline void LineTo(uint16_t x, uint16_t y) {
     DWIN_Draw_Line(pencolor, cursor.x, cursor.y, x, y);
   }
-
+  */
   // Extend a frame box
   //  v: value to extend
   inline frame_rect_t ExtendFrame(frame_rect_t frame, uint8_t v) {
@@ -353,7 +361,7 @@ namespace DWINUI {
   //  iNum: Number of digits
   //  x/y: Upper-left coordinate
   //  value: Integer value
-  void Draw_Int(uint8_t bShow, bool signedMode, fontid_t fid, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, int32_t value);
+  void Draw_Int(uint8_t bShow, bool signedMode, fontid_t fid, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, long value);
 
   // Draw a positive integer
   inline void Draw_Int(uint8_t bShow, fontid_t fid, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, long value) {
@@ -457,7 +465,7 @@ namespace DWINUI {
   //  y: ordinate of the display
   //  c: ASCII code of char
   void Draw_Char(uint16_t color, uint16_t x, uint16_t y, const char c);
-  inline void Draw_Char(uint16_t x, uint16_t y, const char c) { Draw_Char(textcolor, x, y, c); };
+  inline void Draw_Char(uint16_t x, uint16_t y, const char c) { Draw_Char(textcolor, x, y, c); }
   // Draw a char at cursor position and increment cursor
   void Draw_Char(uint16_t color, const char c);
   inline void Draw_Char(const char c) { Draw_Char(textcolor, c); }
@@ -576,9 +584,12 @@ namespace DWINUI {
   //  maxv : Maximum value
   //  color1 : Start color
   //  color2 : End color
+  //  sel : true - draw box to select, or false - no box
   uint16_t ColorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t color1, uint16_t color2);
 
   // ------------------------- Buttons ------------------------------//
+  
+  void Draw_Select_Box(uint16_t xpos, uint16_t ypos);
 
   void Draw_Button(uint16_t color, uint16_t bcolor, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, const char * const caption);
   inline void Draw_Button(uint16_t color, uint16_t bcolor, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, FSTR_P caption) {
@@ -587,7 +598,10 @@ namespace DWINUI {
   inline void Draw_Button(FSTR_P caption, uint16_t x, uint16_t y) {
     Draw_Button(textcolor, buttoncolor, x, y, x + 99, y + 37, caption);
   }
+
   void Draw_Button(uint8_t id, uint16_t x, uint16_t y);
+
+  void Draw_Button(uint8_t id, uint16_t x, uint16_t y, bool sel);
 
   // -------------------------- Extra -------------------------------//
 

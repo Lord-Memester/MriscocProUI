@@ -35,7 +35,7 @@
   mesh_bed_leveling bedlevel;
 
   float mesh_bed_leveling::z_offset,
-     #if ProUIex
+     #if PROUI_EX
         mesh_bed_leveling::z_values[GRID_LIMIT][GRID_LIMIT],
         mesh_bed_leveling::index_to_xpos[GRID_LIMIT],
         mesh_bed_leveling::index_to_ypos[GRID_LIMIT];
@@ -46,9 +46,9 @@
      #endif
 
   mesh_bed_leveling::mesh_bed_leveling() {
-    LOOP_L_N(i, GRID_MAX_POINTS_X)
+    for (uint8_t i = 0; i < GRID_MAX_POINTS_X; ++i)
       index_to_xpos[i] = MESH_MIN_X + i * (MESH_X_DIST);
-    LOOP_L_N(i, GRID_MAX_POINTS_Y)
+    for (uint8_t i = 0; i < GRID_MAX_POINTS_Y; ++i)
       index_to_ypos[i] = MESH_MIN_Y + i * (MESH_Y_DIST);
     reset();
   }
@@ -129,8 +129,7 @@
   #endif // IS_CARTESIAN && !SEGMENT_LEVELED_MOVES
 
   void mesh_bed_leveling::report_mesh() {
-    SERIAL_ECHOPAIR_F(STRINGIFY(GRID_MAX_POINTS_X) "x" STRINGIFY(GRID_MAX_POINTS_Y) " mesh. Z offset: ", z_offset, 5);
-    SERIAL_ECHOLNPGM("\nMeasured points:");
+    SERIAL_ECHOLN(F(STRINGIFY(GRID_MAX_POINTS_X) "x" STRINGIFY(GRID_MAX_POINTS_Y) " mesh. Z offset: "), p_float_t(z_offset, 5), F("\nMeasured points:"));
     print_2d_array(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y, 5, z_values[0]);
   }
 

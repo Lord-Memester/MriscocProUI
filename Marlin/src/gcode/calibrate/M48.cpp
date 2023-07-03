@@ -58,6 +58,15 @@
 
 void GcodeSuite::M48() {
 
+#if ENABLED(DWIN_LCD_PROUI)
+  // Store the original value of bltouch.high_speed_mode
+  const bool prev_high_speed_mode = bltouch.high_speed_mode;
+  // Set bltouch.high_speed_mode to 0
+  bltouch.high_speed_mode = false;
+  DWIN_Popup_Pause(GET_TEXT_F(MSG_M48_TEST));
+  HMI_SaveProcessID(NothingToDo);
+#endif
+
   if (homing_needed_error()) return;
 
   const int8_t verbose_level = parser.byteval('V', 1);
@@ -126,15 +135,13 @@ void GcodeSuite::M48() {
 
   auto dev_report = [](const bool verbose, const_float_t mean, const_float_t sigma, const_float_t min, const_float_t max, const bool final=false) {
     if (verbose) {
-      SERIAL_ECHOPAIR_F("Mean: ", mean, 6);
-      if (!final) SERIAL_ECHOPAIR_F(" Sigma: ", sigma, 6);
-      SERIAL_ECHOPAIR_F(" Min: ", min, 3);
-      SERIAL_ECHOPAIR_F(" Max: ", max, 3);
-      SERIAL_ECHOPAIR_F(" Range: ", max-min, 3);
+      SERIAL_ECHOPGM("Mean: ", p_float_t(mean, 6));
+      if (!final) SERIAL_ECHOPGM(" Sigma: ", p_float_t(sigma, 6));
+      SERIAL_ECHOPGM(" Min: ", p_float_t(min, 3), " Max: ", p_float_t(max, 3), " Range: ", p_float_t(max-min, 3));
       if (final) SERIAL_EOL();
     }
     if (final) {
-      SERIAL_ECHOLNPAIR_F("Standard Deviation: ", sigma, 6);
+      SERIAL_ECHOLNPGM("Standard Deviation: ", p_float_t(sigma, 6));
       SERIAL_EOL();
     }
   };
@@ -148,7 +155,7 @@ void GcodeSuite::M48() {
 
     float sample_sum = 0.0;
 
-    LOOP_L_N(n, n_samples) {
+    for (uint8_t n = 0; n < n_samples; ++n) {
       #if HAS_STATUS_MESSAGE
         // Display M48 progress in the status bar
         ui.status_printf(0, F(S_FMT ": %d/%d"), GET_TEXT(MSG_M48_POINT), int(n + 1), int(n_samples));
@@ -175,7 +182,7 @@ void GcodeSuite::M48() {
         }
 
         // Move from leg to leg in rapid succession
-        LOOP_L_N(l, n_legs - 1) {
+        for (uint8_t l = 0; l < n_legs - 1; ++l) {
 
           // Move some distance around the perimeter
           float delta_angle;
@@ -207,7 +214,7 @@ void GcodeSuite::M48() {
             while (!probe.can_reach(next_pos)) {
               next_pos *= 0.8f;
               if (verbose_level > 3)
-                SERIAL_ECHOLNPGM_P(PSTR("Moving inward: X"), next_pos.x, SP_Y_STR, next_pos.y);
+                SERIAL_ECHOLN(F("Moving inward: X"), next_pos.x, FPSTR(SP_Y_STR), next_pos.y);
             }
           #elif HAS_ENDSTOPS
             // For a rectangular bed just keep the probe in bounds
@@ -216,7 +223,7 @@ void GcodeSuite::M48() {
           #endif
 
           if (verbose_level > 3)
-            SERIAL_ECHOLNPGM_P(PSTR("Going to: X"), next_pos.x, SP_Y_STR, next_pos.y);
+            SERIAL_ECHOLN(F("Going to: X"), next_pos.x, FPSTR(SP_Y_STR), next_pos.y);
 
           do_blocking_move_to_xy(next_pos);
         } // n_legs loop
@@ -243,14 +250,11 @@ void GcodeSuite::M48() {
       // Calculate the standard deviation so far.
       // The value after the last sample will be the final output.
       float dev_sum = 0.0;
-      LOOP_LE_N(j, n) dev_sum += sq(sample_set[j] - mean);
+      for (uint8_t j = 0; j <= n; ++j) dev_sum += sq(sample_set[j] - mean);
       sigma = SQRT(dev_sum / (n + 1));
 
       if (verbose_level > 1) {
-        SERIAL_ECHO(n + 1);
-        SERIAL_ECHOPGM(" of ", n_samples);
-        SERIAL_ECHOPAIR_F(": z: ", pz, 3);
-        SERIAL_CHAR(' ');
+        SERIAL_ECHO(n + 1, F(" of "), n_samples, F(": z: "), p_float_t(pz, 3), AS_CHAR(' '));
         dev_report(verbose_level > 2, mean, sigma, min, max);
         SERIAL_EOL();
       }
@@ -280,6 +284,11 @@ void GcodeSuite::M48() {
   TERN_(HAS_PTC, ptc.set_enabled(true));
 
   report_current_position();
+  #if ENABLED(DWIN_LCD_PROUI)
+    // Restore the previous value of bltouch.high_speed_mode
+    bltouch.high_speed_mode = prev_high_speed_mode;
+    HMI_ReturnScreen();
+  #endif
 }
 
 #endif // Z_MIN_PROBE_REPEATABILITY_TEST

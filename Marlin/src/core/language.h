@@ -160,10 +160,10 @@
 #define STR_ON                              "ON"
 #define STR_OFF                             "OFF"
 #define STR_ENDSTOP_HIT                     "TRIGGERED"
-#define STR_ENDSTOP_OPEN                    "open"
+#define STR_ENDSTOP_OPEN                    "Open"
 #define STR_DUPLICATION_MODE                "Duplication mode: "
-#define STR_SOFT_MIN                        "  Min: "
-#define STR_SOFT_MAX                        "  Max: "
+#define STR_SOFT_MIN                        " Min: "
+#define STR_SOFT_MAX                        " Max: "
 
 #define STR_SAVED_POS                       "Position saved"
 #define STR_RESTORING_POS                   "Restoring position"
@@ -509,7 +509,7 @@
   #define STR_W   ""
 #endif
 
-#if EITHER(HAS_MARLINUI_HD44780, IS_TFTGLCD_PANEL)
+#if ANY(HAS_MARLINUI_HD44780, IS_TFTGLCD_PANEL)
 
   // Custom characters defined in the first 8 characters of the LCD
   #define LCD_STR_BEDTEMP     "\x00" // Print only as a char. This will have 'unexpected' results when used in a string!

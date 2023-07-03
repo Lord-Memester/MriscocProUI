@@ -25,7 +25,6 @@
 
 #include "dwin_api.h"
 #include "dwin_set.h"
-#include "dwin_font.h"
 
 #include "../../../inc/MarlinConfig.h"
 
@@ -36,14 +35,12 @@
 uint8_t DWIN_SendBuf[11 + DWIN_WIDTH / 6 * 2] = { 0xAA };
 uint8_t DWIN_BufTail[4] = { 0xCC, 0x33, 0xC3, 0x3C };
 uint8_t databuf[26] = { 0 };
-bool need_lcd_update = true;
 
 // Send the data in the buffer plus the packet tail
 void DWIN_Send(size_t &i) {
   ++i;
-  LOOP_L_N(n, i) { LCD_SERIAL.write(DWIN_SendBuf[n]); delayMicroseconds(1); }
-  LOOP_L_N(n, 4) { LCD_SERIAL.write(DWIN_BufTail[n]); delayMicroseconds(1); }
-  need_lcd_update = true;
+  for (uint8_t n = 0; n < i; ++n) { LCD_SERIAL.write(DWIN_SendBuf[n]); delayMicroseconds(1); }
+  for (uint8_t n = 0; n < 4; ++n) { LCD_SERIAL.write(DWIN_BufTail[n]); delayMicroseconds(1); }
 }
 
 /*-------------------------------------- System variable function --------------------------------------*/
@@ -108,12 +105,9 @@ void DWIN_Frame_SetDir(uint8_t dir) {
 
 // Update display
 void DWIN_UpdateLCD() {
-  if (need_lcd_update) {
     size_t i = 0;
     DWIN_Byte(i, 0x3D);
     DWIN_Send(i);
-    need_lcd_update = false;
-  }
 }
 
 /*---------------------------------------- Drawing functions ----------------------------------------*/
@@ -127,21 +121,23 @@ void DWIN_Frame_Clear(const uint16_t color) {
   DWIN_Send(i);
 }
 
-// Draw a point
-//  color: point color
-//  width: point width   0x01-0x0F
-//  height: point height 0x01-0x0F
-//  x,y: upper left point
-void DWIN_Draw_Point(uint16_t color, uint8_t width, uint8_t height, uint16_t x, uint16_t y) {
-  size_t i = 0;
-  DWIN_Byte(i, 0x02);
-  DWIN_Word(i, color);
-  DWIN_Byte(i, width);
-  DWIN_Byte(i, height);
-  DWIN_Word(i, x);
-  DWIN_Word(i, y);
-  DWIN_Send(i);
-}
+#if DISABLED(TJC_DISPLAY)
+  // Draw a point
+  //  color: point color
+  //  width: point width   0x01-0x0F
+  //  height: point height 0x01-0x0F
+  //  x,y: upper left point
+  void DWIN_Draw_Point(uint16_t color, uint8_t width, uint8_t height, uint16_t x, uint16_t y) {
+    size_t i = 0;
+    DWIN_Byte(i, 0x02);
+    DWIN_Word(i, color);
+    DWIN_Byte(i, width);
+    DWIN_Byte(i, height);
+    DWIN_Word(i, x);
+    DWIN_Word(i, y);
+    DWIN_Send(i);
+  }
+#endif
 
 // Draw a line
 //  color: Line segment color
@@ -198,15 +194,15 @@ void DWIN_Frame_AreaMove(uint8_t mode, uint8_t dir, uint16_t dis,
 
 //Color: color
 //x/y: Upper-left coordinate of the first pixel
-void DWIN_Draw_DegreeSymbol(uint16_t Color, uint16_t x, uint16_t y)	{
-  	DWIN_Draw_Point(Color, 1, 1, x + 1, y);
-  	DWIN_Draw_Point(Color, 1, 1, x + 2, y);
-  	DWIN_Draw_Point(Color, 1, 1, x, y + 1);
-		DWIN_Draw_Point(Color, 1, 1, x + 3, y + 1);
-  	DWIN_Draw_Point(Color, 1, 1, x, y + 2);
-		DWIN_Draw_Point(Color, 1, 1, x + 3, y + 2);
-    DWIN_Draw_Point(Color, 1, 1, x + 1, y + 3);
-  	DWIN_Draw_Point(Color, 1, 1, x + 2, y + 3);
+void DWIN_Draw_DegreeSymbol(uint16_t Color, uint16_t x, uint16_t y) {
+  DWIN_Draw_Point(Color, 1, 1, x + 1, y);
+  DWIN_Draw_Point(Color, 1, 1, x + 2, y);
+  DWIN_Draw_Point(Color, 1, 1, x, y + 1);
+  DWIN_Draw_Point(Color, 1, 1, x + 3, y + 1);
+  DWIN_Draw_Point(Color, 1, 1, x, y + 2);
+  DWIN_Draw_Point(Color, 1, 1, x + 3, y + 2);
+  DWIN_Draw_Point(Color, 1, 1, x + 1, y + 3);
+  DWIN_Draw_Point(Color, 1, 1, x + 2, y + 3);
 }
 
 /*---------------------------------------- Text related functions ----------------------------------------*/

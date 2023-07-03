@@ -1,8 +1,8 @@
 /**
  * DWIN Enhanced implementation for PRO UI
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 3.11.1
- * Date: 2022/02/28
+ * Version: 3.12.1
+ * Date: 2022/04/03
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -43,12 +43,6 @@ void Draw_Select_Highlight(const bool sel, const uint16_t ypos) {
   DWIN_Draw_Rectangle(0, c2, 144, ypos - 2, 247, ypos + 39);
 }
 
-void Draw_Select_Box(const uint16_t xpos, const uint16_t ypos) {
-  const uint16_t c1 = HMI_data.Cursor_Color;
-  DWIN_Draw_Rectangle(0, c1, xpos - 1, ypos - 1, xpos + 100, ypos + 38);
-  DWIN_Draw_Rectangle(0, c1, xpos - 2, ypos - 2, xpos + 101, ypos + 39);
-}
-
 void DWIN_Popup_Continue(const uint8_t icon, FSTR_P const fmsg1, FSTR_P const fmsg2) {
   HMI_SaveProcessID(WaitResponse);
   DWIN_Draw_Popup(icon, fmsg1, fmsg2, BTN_Continue);  // Button Continue
@@ -57,8 +51,8 @@ void DWIN_Popup_Continue(const uint8_t icon, FSTR_P const fmsg1, FSTR_P const fm
 
 void DWIN_Popup_ConfirmCancel(const uint8_t icon, FSTR_P const fmsg2) {
   DWIN_Draw_Popup(icon, F("Please confirm"), fmsg2);
-  DWINUI::Draw_Button(BTN_Confirm, 26, 280);
-  DWINUI::Draw_Button(BTN_Cancel, 146, 280);
+  DWINUI::Draw_Button(BTN_Confirm, 26, 280, false);
+  DWINUI::Draw_Button(BTN_Cancel, 146, 280, false);
   Draw_Select_Highlight(HMI_flag.select_flag);
   DWIN_UpdateLCD();
 }

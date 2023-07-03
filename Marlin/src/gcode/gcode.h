@@ -336,7 +336,7 @@
   #include "../feature/encoder_i2c.h"
 #endif
 
-#if EITHER(IS_SCARA, POLAR) || defined(G0_FEEDRATE)
+#if ANY(IS_SCARA, POLAR) || defined(G0_FEEDRATE)
   #define HAS_FAST_MOVES 1
 #endif
 
@@ -442,7 +442,7 @@ public:
     process_subcommands_now(keep_leveling ? FPSTR(G28_STR) : TERN(CAN_SET_LEVELING_AFTER_G28, F("G28L0"), FPSTR(G28_STR)));
   }
 
-  #if EITHER(HAS_AUTO_REPORTING, HOST_KEEPALIVE_FEATURE)
+  #if ANY(HAS_AUTO_REPORTING, HOST_KEEPALIVE_FEATURE)
     static bool autoreport_paused;
     static bool set_autoreport_paused(const bool p) {
       const bool was = autoreport_paused;
@@ -592,7 +592,7 @@ private:
     static void G59();
   #endif
 
-  #if BOTH(PTC_PROBE, PTC_BED)
+  #if ALL(PTC_PROBE, PTC_BED)
     static void G76();
   #endif
 
@@ -624,11 +624,11 @@ private:
     static void M7();
   #endif
 
-  #if EITHER(AIR_ASSIST, COOLANT_FLOOD)
+  #if ANY(AIR_ASSIST, COOLANT_FLOOD)
     static void M8();
   #endif
 
-  #if EITHER(AIR_ASSIST, COOLANT_CONTROL)
+  #if ANY(AIR_ASSIST, COOLANT_CONTROL)
     static void M9();
   #endif
 
@@ -672,7 +672,7 @@ private:
     #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
       static void M33();
     #endif
-    #if BOTH(SDCARD_SORT_ALPHA, SDSORT_GCODE)
+    #if ALL(SDCARD_SORT_ALPHA, SDSORT_GCODE)
       static void M34();
     #endif
   #endif
@@ -700,6 +700,10 @@ private:
     static void M78();
   #endif
 
+  #if ENABLED(CCLOUD_PRINT_SUPPORT)
+    static void M79();
+  #endif
+
   #if ENABLED(PSU_CONTROL)
     static void M80();
   #endif
@@ -711,6 +715,13 @@ private:
   #endif
 
   static void M85();
+
+  #if ENABLED(HOTEND_IDLE_TIMEOUT)
+    static void M86();
+    static void M86_report(const bool forReplay=true);
+    static void M87();
+  #endif
+
   static void M92();
   static void M92_report(const bool forReplay=true, const int8_t e=-1);
 
@@ -720,7 +731,6 @@ private:
 
   #if ENABLED(BD_SENSOR)
     static void M102();
-    static void M102_report(const bool forReplay=true);
   #endif
 
   #if HAS_HOTEND
@@ -821,7 +831,7 @@ private:
     static void M154();
   #endif
 
-  #if BOTH(AUTO_REPORT_TEMPERATURES, HAS_TEMP_SENSOR)
+  #if ALL(AUTO_REPORT_TEMPERATURES, HAS_TEMP_SENSOR)
     static void M155();
   #endif
 
@@ -930,6 +940,10 @@ private:
 
   #if ENABLED(BABYSTEPPING)
     static void M290();
+    #if ENABLED(EP_BABYSTEPPING)
+      static void M293();
+      static void M294();
+    #endif
   #endif
 
   #if HAS_SOUND
@@ -989,7 +1003,7 @@ private:
     static bool M364();
   #endif
 
-  #if EITHER(EXT_SOLENOID, MANUAL_SOLENOID_CONTROL)
+  #if ANY(EXT_SOLENOID, MANUAL_SOLENOID_CONTROL)
     static void M380();
     static void M381();
   #endif
@@ -1116,7 +1130,7 @@ private:
     static void M665_report(const bool forReplay=true);
   #endif
 
-  #if EITHER(DELTA, HAS_EXTRA_ENDSTOPS)
+  #if ANY(DELTA, HAS_EXTRA_ENDSTOPS)
     static void M666();
     static void M666_report(const bool forReplay=true);
   #endif

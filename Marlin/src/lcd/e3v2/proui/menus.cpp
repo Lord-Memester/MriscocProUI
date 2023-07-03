@@ -1,8 +1,8 @@
 /**
  * Menu functions for ProUI
  * Author: Miguel A. Risco-Castillo
- * Version: 1.9.1
- * Date: 2022/12/02
+ * Version: 1.10.1
+ * Date: 2022/05/01
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -46,11 +46,6 @@ void Draw_Title(TitleClass* title) {
     #else
       DWIN_Draw_String(false, DWIN_FONT_HEAD, HMI_data.TitleTxt_Color, HMI_data.TitleBg_Color, 14, (TITLE_HEIGHT - DWINUI::fontHeight(DWIN_FONT_HEAD)) / 2 - 1, title->caption);
     #endif
-}
-
-void Draw_Menu(MenuClass* menu) {
-  DWINUI::SetColors(HMI_data.Text_Color, HMI_data.Background_Color, HMI_data.TitleBg_Color);
-  DWIN_Draw_Rectangle(1, DWINUI::backcolor, 0, TITLE_HEIGHT, DWIN_WIDTH - 1, STATUS_Y - 1);
 }
 
 void Draw_Menu_Cursor(const int8_t line) {
@@ -102,10 +97,12 @@ void Draw_Menu_IntValue(uint16_t bcolor, const uint8_t line, uint8_t iNum, const
 
 void onDrawMenuItem(MenuItemClass* menuitem, int8_t line) {
   if (menuitem->icon) DWINUI::Draw_Icon(menuitem->icon, ICOX, MBASE(line) - 3);
-  if (menuitem->frameid)
+  if (menuitem->frameid) {
     DWIN_Frame_AreaCopy(menuitem->frameid, menuitem->frame.left, menuitem->frame.top, menuitem->frame.right, menuitem->frame.bottom, LBLX, MBASE(line));
-  else if (menuitem->caption)
+  }
+  else {
     DWINUI::Draw_String(LBLX, MBASE(line) - 1, menuitem->caption);
+  }
   DWIN_Draw_HLine(HMI_data.SplitLine_Color, 16, MYPOS(line + 1), 240);
 }
 
@@ -187,7 +184,7 @@ void SetOnClick(uint8_t process, const int32_t lo, const int32_t hi, uint8_t dp,
   MenuData.Apply = Apply;
   MenuData.LiveUpdate = LiveUpdate;
   MenuData.Value = constrain(val, lo, hi);
-  EncoderRate.enabled = true;
+  encoderRate.enabled = true;
 }
 
 // Generic onclick event for integer values
@@ -280,10 +277,10 @@ int8_t HMI_Get(bool draw) {
   const int32_t lo = MenuData.MinValue;
   const int32_t hi = MenuData.MaxValue;
   const int32_t cval = MenuData.Value;
-  EncoderState encoder_diffState = get_encoder_state();
+  EncoderState encoder_diffState = encoderReceiveAnalyze();
   if (encoder_diffState != ENCODER_DIFF_NO) {
-    if (Apply_Encoder(encoder_diffState, MenuData.Value)) {
-      EncoderRate.enabled = false;
+    if (applyEncoder(encoder_diffState, MenuData.Value)) {
+      encoderRate.enabled = false;
       if (draw) DrawItemEdit(false);
       checkkey = Menu;
       return 2;
@@ -344,7 +341,8 @@ MenuClass::MenuClass() {
 
 void MenuClass::draw() {
   MenuTitle.draw();
-  Draw_Menu(this);
+  DWINUI::SetColors(HMI_data.Text_Color, HMI_data.Background_Color, HMI_data.TitleBg_Color);
+  DWIN_Draw_Rectangle(1, DWINUI::backcolor, 0, TITLE_HEIGHT, DWIN_WIDTH - 1, STATUS_Y - 1);
   for (int8_t i = 0; i < MenuItemCount; i++)
     MenuItems[i]->draw(i - topline);
   Draw_Menu_Cursor(line());
@@ -388,14 +386,14 @@ CustomMenuItemClass** MenuClass::Items() {
 
 int8_t MenuClass::count() {
   return MenuItemCount;
-};
+}
 
 /* MenuItem Class ===========================================================*/
 
 void CustomMenuItemClass::draw(int8_t line) {
   if (line < 0 || line >= TROWS) return;
   if (onDraw != nullptr) (*onDraw)(static_cast<MenuItemClass*>(this), line);
-};
+}
 
 void CustomMenuItemClass::redraw(bool erase /*=false*/) {
   const int8_t line = CurrentMenu->line(this->pos);
@@ -434,7 +432,7 @@ void MenuItemClass::SetFrame(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, 
 
 MenuItemPtrClass::MenuItemPtrClass(uint8_t cicon, const char * const text, OnDrawItem ondraw, OnClickItem onclick, void* val) : MenuItemClass(cicon, text, ondraw, onclick) {
   value = val;
-};
+}
 
 // Menu auxiliary functions ===================================================
 
@@ -497,8 +495,8 @@ MenuItemClass* EditItemAdd(uint8_t cicon, const char * const text, OnDrawItem on
 }
 
 void InitMenu() {
+  CurrentMenu = nullptr;
   PreviousMenu = nullptr;
-  InvalidateMenu();
 }
 
 bool SetMenu(MenuClass* &menu, FSTR_P title, int8_t totalitems) {
@@ -524,12 +522,16 @@ bool SetMenu(MenuClass* &menu, frame_rect_t cn, FSTR_P title, int8_t totalitems)
   return NotCurrent;
 }
 
-void InvalidateMenu() {
-  if (CurrentMenu) {
-    CurrentMenu->topline = 0;
-    CurrentMenu->selected = 0;
-    CurrentMenu = nullptr;
+void ResetMenu(MenuClass* &menu) {
+  if (menu) {
+    menu->topline = 0;
+    menu->selected = 0;
   }
+}
+
+void InvalidateMenu() {
+  ResetMenu(CurrentMenu);
+  CurrentMenu = nullptr;
 }
 
 void UpdateMenu(MenuClass* &menu) {
@@ -544,6 +546,10 @@ void UpdateMenu(MenuClass* &menu) {
 void ReDrawMenu(bool force /*= false*/) {
   if (CurrentMenu && (force || checkkey==Menu)) CurrentMenu->draw();
   if (force) DrawItemEdit(true);
+}
+
+void ReDrawItem() {
+  static_cast<MenuItemClass*>(CurrentMenu->SelectedItem())->redraw(false);
 }
 
 #endif // DWIN_LCD_PROUI
